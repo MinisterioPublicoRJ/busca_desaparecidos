@@ -1,4 +1,5 @@
 import cx_Oracle
+import pandas
 
 from decouple import config
 
@@ -20,7 +21,26 @@ def client():
 
 
 def search_single_missing(cursor, search_id):
-    return cursor.execute(QUERY_SINGLE_MISSING.format(id=search_id))
+    result = cursor.execute(QUERY_SINGLE_MISSING.format(id=search_id))
+    return pandas.Series(
+        next(result),
+        index=[
+            'nome',
+            'identificador_sinalid',
+            'cpf',
+            'rg',
+            'sexo',
+            'dt_nasc',
+            'biotipo',
+            'altura',
+            'cor_cabelo',
+            'cor_olho',
+            'cor_pele',
+            'caracteristica',
+            'parte_corpo',
+            'desc_caracteristica'
+        ]
+    )
 
 
 def search_all_missing(cursor):

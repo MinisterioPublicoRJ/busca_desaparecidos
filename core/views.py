@@ -18,6 +18,8 @@ class SearchView(TemplateView):
             cleaned_data = form.cleaned_data
             if cleaned_data['search_type'] == '1':
                 result = localized_rank(cleaned_data['search_id'])
+            else:
+                result = missing_rank(cleaned_data['search_id'])
 
             context = {'result': result}
             return self.render_to_response(context)
