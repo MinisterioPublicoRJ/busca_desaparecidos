@@ -48,7 +48,28 @@ def search_all_missing(cursor):
 
 
 def search_single_localized(cursor, search_id):
-    return cursor.execute(QUERY_SINGLE_LOCALIZED.format(id=search_id))
+    result = cursor.execute(QUERY_SINGLE_LOCALIZED.format(id=search_id))
+    return pandas.Series(
+        next(result),
+        index=[
+            'id',
+            'identificador_sinalid',
+            'nome',
+            'cpf',
+            'rg',
+            'sexo',
+            'dt_nasc',
+            'biotipo',
+            'altura',
+            'cor_cabelo',
+            'cor_olho',
+            'cor_pele',
+            'caracteristica',
+            'parte_corpo',
+            'desc_caracteristica',
+        ]
+    )
+
 
 
 def search_all_localized(cursor):

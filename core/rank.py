@@ -221,5 +221,38 @@ def localized_rank(missing):
     return rank_disappearances(df, missing)
 
 
-def missing_rank(missing):
-    pass
+def missing_rank(localized):
+    localized = search_single_localized(CURSOR, localized)
+    localized.age = _parse_age(localized.dt_nasc)
+    if localized.altura is not None:
+        height = localized.altura.str.replace('m', '').str.split(
+            '-', expand=True).rename(
+                columns={0: 'height_inf', 1: 'height_sup'}
+        )
+        localized.height_inf = _parse_height(height['height_inf'])
+        localized.height_sup = _parse_height(height['height_sup'])
+    else:
+        localized.height_inf = np.nan
+        localized.height_sup = np.nan
+
+    df = pandas.DataFrame(
+        [c for c in search_all_missing(CURSOR)],
+        columns=[
+            'id'
+            'identificador_sinalid',
+            'nome',
+            'cpf',
+            'rg',
+            'sexo',
+            'dt_nasc',
+            'biotipo',
+            'altura',
+            'cor_cabelo',
+            'cor_olho',
+            'cor_pele',
+            'caracteristica',
+            'parte_corpo',
+            'desc_caracteristica',
+        ]
+    )
+    return rank_disappearances(df, localized)
