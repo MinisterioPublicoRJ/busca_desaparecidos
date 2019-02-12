@@ -187,7 +187,7 @@ def rank_disappearances(df, person):
 def localized_rank(missing_id):
     missing = search_single_missing(CURSOR, missing_id)
     if missing is None:
-        return None
+        return None, None
 
     missing.age = _parse_age(missing.dt_nasc)
     if missing.altura is not None:
@@ -227,7 +227,7 @@ def localized_rank(missing_id):
 def missing_rank(localized_id):
     localized = search_single_localized(CURSOR, localized_id)
     if localized is None:
-        return None
+        return None, None
 
     localized.age = _parse_age(localized.dt_nasc)
     if localized.altura is not None:
