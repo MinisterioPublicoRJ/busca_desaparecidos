@@ -221,8 +221,11 @@ def localized_rank(missing):
     return rank_disappearances(df, missing)
 
 
-def missing_rank(localized):
-    localized = search_single_localized(CURSOR, localized)
+def missing_rank(localized_id):
+    localized = search_single_localized(CURSOR, localized_id)
+    if localized is None:
+        return None
+
     localized.age = _parse_age(localized.dt_nasc)
     if localized.altura is not None:
         height = localized.altura.str.replace('m', '').str.split(
