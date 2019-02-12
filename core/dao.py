@@ -22,8 +22,13 @@ def client():
 
 def search_single_missing(cursor, search_id):
     result = cursor.execute(QUERY_SINGLE_MISSING.format(id=search_id))
+    try:
+        person = next(result)
+    except StopIteration:
+        return None
+
     return pandas.Series(
-        next(result),
+        person,
         index=[
             'nome',
             'identificador_sinalid',
@@ -69,7 +74,6 @@ def search_single_localized(cursor, search_id):
             'desc_caracteristica',
         ]
     )
-
 
 
 def search_all_localized(cursor):
