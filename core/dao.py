@@ -54,8 +54,13 @@ def search_all_missing(cursor):
 
 def search_single_localized(cursor, search_id):
     result = cursor.execute(QUERY_SINGLE_LOCALIZED.format(id=search_id))
+    try:
+        person = next(result)
+    except StopIteration:
+        return None
+
     return pandas.Series(
-        next(result),
+        person,
         index=[
             'id',
             'identificador_sinalid',
