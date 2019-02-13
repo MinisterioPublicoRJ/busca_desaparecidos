@@ -32,6 +32,7 @@ class ViewsTest(TestCase):
         self.assertEqual(resp.context['result'], 'result')
         self.assertEqual(resp.context['person_attrs'], [('a', 1), ('b', 2)])
         self.assertEqual(resp.context['column_names'], 'col names')
+        self.assertIn('form', resp.context)
 
         _attrs.assert_called_once_with('person')
         _result.assert_called_once_with('df')
@@ -55,6 +56,7 @@ class ViewsTest(TestCase):
         _mis_rank.assert_called_once_with('1234')
         self.assertEqual(resp.context['result'], 'result')
         self.assertEqual(resp.context['person_attrs'], [('a', 1), ('b', 2)])
+        self.assertIn('form', resp.context)
 
         _attrs.assert_called_once_with('person')
         _result.assert_called_once_with('df')
@@ -73,6 +75,7 @@ class ViewsTest(TestCase):
             'Identificador Sinalid não encontrado',
             resp.content.decode()
         )
+        self.assertIn('form', resp.context)
 
     @mock.patch('core.views.missing_rank')
     def test_localized_not_found(self, _mis_rank):
@@ -87,3 +90,4 @@ class ViewsTest(TestCase):
             'Identificador Sinalid não encontrado',
             resp.content.decode()
         )
+        self.assertIn('form', resp.context)

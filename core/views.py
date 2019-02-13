@@ -12,6 +12,7 @@ def _prepare_result(result, n_results=10):
 def _prepare_person_attrs(person):
     return zip(person.index, person)
 
+
 def _columns(result):
     return list(result.columns)
 
@@ -33,17 +34,17 @@ class SearchView(TemplateView):
             else:
                 person, result = missing_rank(cleaned_data['search_id'])
 
+            context = {'form': SearchForm()}
+
             if person is None:
                 messages.add_message(
                     request,
                     messages.ERROR,
                     'Identificador Sinalid não encontrado'
                 )
-                return self.render_to_response({})
+                return self.render_to_response(context)
             else:
-                context = {
-                    'result': _prepare_result(result),
-                    'person_attrs': _prepare_person_attrs(person),
-                    'column_names': _columns(result)
-                }
+                context['result'] = _prepare_result(result)
+                context['person_attrs'] = _prepare_person_attrs(person)
+                context['column_names'] = _columns(result)
                 return self.render_to_response(context)

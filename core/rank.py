@@ -170,7 +170,7 @@ def rank_disappearances(df, person):
             'same_characteristic',
             'same_body_part'
         ], ascending=[True, True, False, False, False, False, False])
-    return df_sorted[
+    return person, df_sorted[
         [
             'nome',
             'sexo',
