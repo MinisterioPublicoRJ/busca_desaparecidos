@@ -170,7 +170,7 @@ def rank_disappearances(df, person):
             'same_characteristic',
             'same_body_part'
         ], ascending=[True, True, False, False, False, False, False])
-    return df_sorted[
+    return person, df_sorted[
         [
             'nome',
             'sexo',
@@ -184,8 +184,11 @@ def rank_disappearances(df, person):
     ]
 
 
-def localized_rank(missing):
-    missing = search_single_missing(CURSOR, missing)
+def localized_rank(missing_id):
+    missing = search_single_missing(CURSOR, missing_id)
+    if missing is None:
+        return None, None
+
     missing.age = _parse_age(missing.dt_nasc)
     if missing.altura is not None:
         height = missing.altura.str.replace('m', '').str.split(
@@ -221,8 +224,11 @@ def localized_rank(missing):
     return rank_disappearances(df, missing)
 
 
-def missing_rank(localized):
-    localized = search_single_localized(CURSOR, localized)
+def missing_rank(localized_id):
+    localized = search_single_localized(CURSOR, localized_id)
+    if localized is None:
+        return None, None
+
     localized.age = _parse_age(localized.dt_nasc)
     if localized.altura is not None:
         height = localized.altura.str.replace('m', '').str.split(
