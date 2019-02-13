@@ -59,3 +59,31 @@ class ViewsTest(TestCase):
         _attrs.assert_called_once_with('person')
         _result.assert_called_once_with('df')
         _cols.assert_called_once_with('df')
+
+    @mock.patch('core.views.localized_rank')
+    def test_missing_not_found(self, _loc_rank):
+        _loc_rank.return_value = [None, None]
+
+        url = reverse('core:search') + '?search_id=nonexistent&search_type=1'
+
+        resp = self.client.get(url)
+
+        self.assertEqual(resp.status_code, 200)
+        self.assertIn(
+            'Identificador Sinalid não encontrado',
+            resp.content.decode()
+        )
+
+    @mock.patch('core.views.missing_rank')
+    def test_localized_not_found(self, _mis_rank):
+        _mis_rank.return_value = [None, None]
+
+        url = reverse('core:search') + '?search_id=nonexistent&search_type=1'
+
+        resp = self.client.get(url)
+
+        self.assertEqual(resp.status_code, 200)
+        self.assertIn(
+            'Identificador Sinalid não encontrado',
+            resp.content.decode()
+        )

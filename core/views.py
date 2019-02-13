@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django.views.generic import FormView, TemplateView
 
 from .rank import localized_rank, missing_rank
@@ -32,9 +33,17 @@ class SearchView(TemplateView):
             else:
                 person, result = missing_rank(cleaned_data['search_id'])
 
-            context = {
-                'result': _prepare_result(result),
-                'person_attrs': _prepare_person_attrs(person),
-                'column_names': _columns(result)
-            }
-            return self.render_to_response(context)
+            if person is None:
+                messages.add_message(
+                    request,
+                    messages.ERROR,
+                    'Identificador Sinalid não encontrado'
+                )
+                return self.render_to_response({})
+            else:
+                context = {
+                    'result': _prepare_result(result),
+                    'person_attrs': _prepare_person_attrs(person),
+                    'column_names': _columns(result)
+                }
+                return self.render_to_response(context)
