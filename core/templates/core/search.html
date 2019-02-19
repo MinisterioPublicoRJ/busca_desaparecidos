@@ -65,8 +65,10 @@
                                 {{ value | date:"d/m/Y"}}
                             {% elif value is None %}
                                 —
-                            {% else %}
+                            {% elif attr == "identificador_sinalid" %}
                                 {{ value }}
+                            {% else %}
+                                {{ value | title }}
                             {% endif %}
                         </td>
                     </tr>
@@ -77,7 +79,23 @@
                 <thead>
                 <tr>
                     {% for col_name in column_names %}
-                        <th scope="col">{{ col_name }}</th>
+                        <th scope="col">
+                            {% if col_name == "age" %}
+                                Idade
+                            {% elif col_name == "cor_pele" %}
+                                Cor da Pele
+                            {% elif col_name == "cor_cabelo" %}
+                                Cor do Cabelo
+                            {% elif col_name == "cor_olho" %}
+                                Cor dos Olhos
+                            {% elif col_name == "caracteristica" %}
+                                Característica
+                            {% elif col_name == "parte_corpo" %}
+                                Parte do Corpo
+                            {% else %}
+                                {{ col_name | title }}
+                            {% endif %}
+                        </th>
                     {% endfor %}
                 </tr>
                 </thead>
@@ -85,7 +103,17 @@
                     {% for row in result %}
                         <tr>
                             {% for cell in row %}
-                                <td>{{ cell }}</td>
+                                <td>
+                                    {% if cell == "M" %}
+                                        Masculino
+                                    {% elif cell == "F" %}
+                                        Feminino
+                                    {% elif cell is None or cell != cell %}
+                                        —
+                                    {% else %}
+                                        {{ cell | title }}
+                                    {% endif %}
+                                </td>
                             {% endfor %}
                         </tr>
                     {% endfor %}
