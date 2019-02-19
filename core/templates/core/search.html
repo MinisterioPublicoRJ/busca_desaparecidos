@@ -1,50 +1,97 @@
 {% load static %}
 <html>
     <head>
-            <link rel="stylesheet" href="{% static 'core/css/bootstrap.min.css' %}">
+        <link rel="stylesheet" href="{% static 'core/css/bootstrap.min.css' %}">
         <title>Resultado Busca</title>
     </head>
     <body>
-        <form class="form-inline" action="/search", method="GET">
-            <div class="form-group mb-2">
-                <select id="id_search_type" name="search_type" class="form-control">
-                    <option value="1">Desaparecido</option>
-                    <option value="2">Localizado</option>
-                </select>
-            </div>
-            <div class="form-group mx-sm-3 mb-2">
-                <input class="form-control form-control-md" id="id_search_id" type="text" name="search_id" maxlength="100" required placeholder="Search ID"></p>
-            </div>
-            <button type="submit" class="btn btn-primary mb-2">Buscar</button>
-        </form>
-
-        {% for message in messages %}
-            {{ message }}
-        {% endfor %}
-        {% if not messages %}
-        <h3>Indivíduo</h3>
-        {% for attr, value in person_attrs %}
-            {{ attr }}: {{ value }}</br>
-        {% endfor %}
-        <h3>Resultado da Busca</h3>
-        <table class="table">
-            <thead>
-            <tr>
-                {% for col_name in column_names %}
-                    <th scope="col">{{ col_name }}</th>
-                {% endfor %}
-            </tr>
-            </thead>
-            <tbody>
-                {% for row in result %}
+        <div class="container">
+            <form class="form-inline" action="/search", method="GET">
+                <div class="form-group mb-2">
+                    <select id="id_search_type" name="search_type" class="form-control">
+                        <option value="1">Desaparecido</option>
+                        <option value="2">Localizado</option>
+                    </select>
+                </div>
+                <div class="form-group mx-sm-3 mb-2">
+                    <input class="form-control form-control-md" id="id_search_id" type="text" name="search_id" maxlength="100" required placeholder="Search ID"></p>
+                </div>
+                <button type="submit" class="btn btn-primary mb-2">Buscar</button>
+            </form>
+    
+            {% for message in messages %}
+                {{ message }}
+            {% endfor %}
+            {% if not messages %}
+            <h3>Indivíduo</h3>
+            <table class="table">
+                {% for attr, value in person_attrs %}
                     <tr>
-                        {% for cell in row %}
-                            <td>{{ cell }}</td>
-                        {% endfor %}
+                        <td>
+                            {% if attr == "identificador_sinalid" %}
+                                Identificador Sinalid
+                            {% elif attr == "cpf" %}
+                                CPF
+                            {% elif attr == "rg" %}
+                                RG
+                            {% elif attr == "dt_nasc" %}
+                                Data de Nascimento
+                            {% elif attr == "cor_cabelo" %}
+                                Cor do Cabelo
+                            {% elif attr == "cor_olho" %}
+                                Cor dos Olhos
+                            {% elif attr == "cor_pele" %}
+                                Cor da Pele
+                            {% elif attr == "caracteristica" %}
+                                Característica
+                            {% elif attr == "parte_corpo" %}
+                                Parte do Corpo
+                            {% elif attr == "desc_caracteristica" %}
+                                Descrição Característica
+                            {% else %}
+                                {{ attr | title }}
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if attr == "sexo" %}
+                                {% if value == "M" %}
+                                    Masculino
+                                {% elif value == "F" %}
+                                    Feminino
+                                {% else %}
+                                    {{ value }}
+                                {% endif %}
+                            {% elif attr == "dt_nasc" %}
+                                {{ value | date:"d/m/Y"}}
+                            {% elif value is None %}
+                                —
+                            {% else %}
+                                {{ value }}
+                            {% endif %}
+                        </td>
                     </tr>
                 {% endfor %}
-            </tbody>
-        </table>
-        {% endif %}
+            </table>
+            <h3>Resultado da Busca</h3>
+            <table class="table">
+                <thead>
+                <tr>
+                    {% for col_name in column_names %}
+                        <th scope="col">{{ col_name }}</th>
+                    {% endfor %}
+                </tr>
+                </thead>
+                <tbody>
+                    {% for row in result %}
+                        <tr>
+                            {% for cell in row %}
+                                <td>{{ cell }}</td>
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% endif %}
+        </div>
     </body>
 </html>
