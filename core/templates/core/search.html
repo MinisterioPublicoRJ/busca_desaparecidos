@@ -124,7 +124,7 @@
                                     <tbody>
                                         {% for row in result %}
                                             <tr>
-                                                <td><a href="search?search_type=2&search_id={{row.identificador_sinalid}}">{{row.identificador_sinalid}}</a></td>
+                                                <td><!--<a href="search?search_type=2&search_id={{row.identificador_sinalid}}">-->{{row.identificador_sinalid}}<!--</a>--></td>
                                                 <td>{{row.nome | default_if_none:"—"}}</td>
                                                 <td>{{row.sexo}}</td>
                                                 <td>{{row.altura | default_if_none:"—"}}</td>
