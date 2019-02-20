@@ -1,48 +1,154 @@
+{% load static %}
 <html>
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.0/css/bootstrap.min.css" integrity="sha384-PDle/QlgIONtM1aqA2Qemk5gPOE7wFq8+Em+G/hmo5Iq0CCmYZLv3fVRDJ4MMwEA" crossorigin="anonymous">
-<title>Resultado Busca</title>
-<body>
+    <head>
+        <link rel="stylesheet" href="{% static 'core/css/bootstrap.min.css' %}">
+        <link rel="stylesheet" href="{% static 'core/css/style.css' %}">
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600" rel="stylesheet">
+        <title>Resultado Busca</title>
+    </head>
+    <body>
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col"></div>
+                <div class="col-md-auto my-auto text-center">
+                    <h2 class="logo text-hide">Busca de Desaparecidos</h2>
+                    <form class="form-inline" action="/search", method="GET">
+                        <div class="form-group mb-2">
+                            <select id="id_search_type" name="search_type" class="form-control">
+                                <option value="1">Desaparecido</option>
+                                <option value="2">Localizado</option>
+                            </select>
+                        </div>
+                        <div class="form-group mx-sm-3 mb-2">
+                            <input class="form-control form-control-md" id="id_search_id" type="text" name="search_id" maxlength="100" required placeholder="🙎🏽‍♂️ Identificador Sinalid"></p>
+                        </div>
+                        <button type="submit" class="btn btn-primary mb-2">🔍</button>
+                    </form>
+                </div>
+                <div class="col"></div>
+            </div>
 
-    <form class="form-inline" action="/search", method="GET">
-      <div class="form-group mb-2">
-        <select id="id_search_type" name="search_type" class="form-control">
-          <option value="1">Desaparecido</option>
-          <option value="2">Localizado</option>
-        </select>
-      </div>
-      <div class="form-group mx-sm-3 mb-2">
-        <input class="form-control form-control-md" id="id_search_id" type="text" name="search_id" maxlength="100" required placeholder="Search ID"></p>
-      </div>
-      <button type="submit" class="btn btn-primary mb-2">Buscar</button>
-    </form>
+            {% for message in messages %}
+                {{ message }}
+            {% endfor %}
 
-  {% for message in messages %}
-      {{ message }}
-  {% endfor %}
-  {% if not messages %}
-    <h3>Indivíduo</h3>
-      {% for attr, value in person_attrs %}
-      {{ attr }}: {{ value }}</br>
-    {% endfor %}
-    <h3>Resultado da Busca</h3>
-  <table class="table">
-    <thead>
-      <tr>
-        {% for col_name in column_names %}
-        <th scope="col">{{ col_name }}</th>
-        {% endfor %}
-      </tr>
-    </thead>
-   <tbody>
-     {% for row in result %}
-         <tr>
-           {% for cell in row %}
-           <td>{{ cell }}</td>
-             {% endfor %}
-         </tr>
-     {% endfor %}
-   </tbody>
-  </table>
-  {% endif %}
-</body>
+            {% if not messages %}
+                <div class="row">
+                    <div class="col-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <h3 class="card-title">Indivíduo</h3>
+                                <div class="row">
+                                    <div class="col-auto">
+                                        <div class="foto foto-desconhecida"></div>
+                                    </div>
+                                    <div class="col">
+                                        <dl>
+                                            <dt>Nome:</dt>
+                                            <dd>{{ person_attrs.nome | default_if_none:"—" }}</dd>
+                                            <dt>ID:</dt>
+                                            <dd>{{ person_attrs.identificador_sinalid | default_if_none:"—" }}</dd>
+                                            <dt>Data de Nascimento:</dt>
+                                            <dd>{{ person_attrs.dt_nasc | date:"d/m/Y" }}</dd>
+                                        </dl>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col">
+                                        <dl>
+                                            <dt>CPF:</dt>
+                                            <dd>{{ person_attrs.cpf | default_if_none:"—" }}</dd>
+                                            <dt>RG:</dt>
+                                            <dd>{{ person_attrs.rg | default_if_none:"—" }}</dd>
+                                            <dt>Sexo:</dt>
+                                            <dd>
+                                                {% if person_attrs.sexo == "M" %}
+                                                    Masculino
+                                                {% elif person_attrs.sexo == "F" %}
+                                                    Feminino
+                                                {% else %}
+                                                    {{ person_attrs.sexo | default_if_none:"—" }}
+                                                {% endif %}
+                                            </dd>
+                                            <dt>Biotipo:</dt>
+                                            <dd>{{ person_attrs.biotipo | default_if_none:"—" | title }}</dd>
+                                            <dt>Altura:</dt>
+                                            <dd>{{ person_attrs.altura | default_if_none:"—" }}</dd>
+                                        </dl>
+                                    </div>
+                                    <div class="col">
+                                        <dl>
+                                            <dt>Cor do Cabelo:</dt>
+                                            <dd>{{ person_attrs.cor_cabelo | default_if_none:"—" | title }}</dd>
+                                            <dt>Cor do Olho:</dt>
+                                            <dd>{{ person_attrs.cor_olho | default_if_none:"—" | title }}</dd>
+                                            <dt>Cor da Pele:</dt>
+                                            <dd>{{ person_attrs.cor_pele | default_if_none:"—" | title }}</dd>
+                                            <dt>Característica:</dt>
+                                            <dd>{{ person_attrs.caracteristica | default_if_none:"—" | title }}</dd>
+                                            <dt>Parte do Corpo:</dt>
+                                            <dd>{{ person_attrs.parte_corpo | default_if_none:"—" | title }}</dd>
+                                        </dl>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col">
+                                        <dl>
+                                            <dt>Descrição:</dt>
+                                            <dd>{{ person_attrs.desc_caracteristica | default_if_none:"—" }}</dd>
+                                        </dl>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-8">
+                        <div class="card">
+                            <div class="card-body">
+                                <h3>Resultado da Busca</h3>
+                                <table class="table table-borderless text-center">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">identificador sinalid</th>
+                                            <th scope="col">nome</th>
+                                            <th scope="col">sexo</th>
+                                            <th scope="col">altura</th>
+                                            <th scope="col">idade</th>
+                                            <th scope="col">cor pele</th>
+                                            <th scope="col">cor cabelo</th>
+                                            <th scope="col">cor olho</th>
+                                            <th scope="col">característica</th>
+                                            <th scope="col">parte corpo</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for row in result %}
+                                            <tr>
+                                                <td><!--<a href="search?search_type=2&search_id={{row.identificador_sinalid}}">-->{{row.identificador_sinalid}}<!--</a>--></td>
+                                                <td>{{row.nome | default_if_none:"—"}}</td>
+                                                <td>{{row.sexo}}</td>
+                                                <td>{{row.altura | default_if_none:"—"}}</td>
+                                                <td>
+                                                    {% if row.age is None or row.age != row.age %}
+                                                        —
+                                                    {% else %}
+                                                        {{row.age}}
+                                                    {% endif %}
+                                                </td>
+                                                <td>{{row.cor_pele | default_if_none:"—"}}</td>
+                                                <td>{{row.cor_cabelo | default_if_none:"—"}}</td>
+                                                <td>{{row.cor_olho | default_if_none:"—"}}</td>
+                                                <td>{{row.caracteristica | default_if_none:"—"}}</td>
+                                                <td>{{row.parte_corpo | default_if_none:"—"}}</td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </body>
 </html>

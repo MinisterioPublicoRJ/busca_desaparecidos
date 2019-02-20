@@ -1,0 +1,87 @@
+body {
+    background: url(../img/bg.png);
+    background-size: cover;
+    padding: 30px 0;
+}
+body, input, select, table {
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 300;
+}
+
+h1.logo, h2.logo {
+    background: url(../img/logo_busca.png);
+    background-size: cover;
+}
+
+h1.logo {
+    width: 430px;
+    height: 120px;
+    margin-bottom: 100px;
+}
+h2.logo {
+    width: 239px;
+    height: 68px;
+    display: inline-block;
+    margin-bottom: 30px;
+}
+.form-inline {
+    margin-bottom: 30px;
+}
+h3 {
+    font-weight: 300;
+    text-transform: uppercase;
+}
+
+dt {
+    float: left;
+    margin-right: 5px;
+    font-weight: 400;
+}
+
+.foto {
+    width: 80px;
+    height: 80px;
+    background: #F5F5F5;
+    border-radius: 50%;
+}
+.foto-desconhecida {
+    background-image: url(../img/icon_person.svg);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 30px 39px;
+}
+
+.table thead th {
+    background-color: #ECECEC;
+    font-weight: 600;
+    font-size: 12px;
+}
+.table td {
+    font-size: 14px;
+}
+.table tbody tr:nth-of-type(even) {
+    background-color: #F9F9F9;
+}
+
+input::placeholder {
+    text-transform: uppercase;
+    font-size: 13px;
+}
+
+select.form-control {
+    font-weight: 300;
+    background: none;
+    border: none;
+    text-transform: uppercase;
+}
+
+@media
+only screen and (min-resolution: 200dpi),
+only screen and (min-resolution: 1.25dppx) {
+    body {
+        background: url(../img/bg@2x.png)
+    }
+    h1.logo {
+        background: url(../img/logo_busca@2x.png)
+    }
+}
