@@ -172,6 +172,7 @@ def rank_disappearances(df, person):
         ], ascending=[True, True, False, False, False, False, False])
     return person, df_sorted[
         [
+            'identificador_sinalid',
             'nome',
             'sexo',
             'altura',
