@@ -10,7 +10,7 @@ def _prepare_result(result, n_results=10):
 
 
 def _prepare_person_attrs(person):
-    return zip(person.index, person)
+    return dict(zip(person.index, person))
 
 
 def _columns(result):
