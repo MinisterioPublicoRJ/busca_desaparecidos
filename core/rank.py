@@ -40,8 +40,8 @@ def same_gender(df, gender):
 def similar_height(df, height_inf, height_sup):
     height_amp = config('HEIGHT_AMP', cast=int)
 
-    idx_inf = (df.altura_inf >= height_inf - height_amp)
-    idx_sup = (df.altura_sup <= height_sup + height_amp)
+    idx_inf = (df.height_inf >= height_inf - height_amp)
+    idx_sup = (df.height_sup <= height_sup + height_amp)
 
     return df.loc[
         (idx_inf & idx_sup) | (df.altura.isnull())
@@ -192,12 +192,9 @@ def localized_rank(missing_id):
 
     missing.age = _parse_age(missing.dt_nasc)
     if missing.altura is not None:
-        height = missing.altura.str.replace('m', '').str.split(
-            '-', expand=True).rename(
-                columns={0: 'height_inf', 1: 'height_sup'}
-        )
-        missing.height_inf = _parse_height(height['height_inf'])
-        missing.height_sup = _parse_height(height['height_sup'])
+        height_inf, height_sup = missing.altura.replace('m', '').split('-')
+        missing.height_inf = _parse_height(height_inf)
+        missing.height_sup = _parse_height(height_sup)
     else:
         missing.height_inf = np.nan
         missing.height_sup = np.nan
@@ -232,12 +229,9 @@ def missing_rank(localized_id):
 
     localized.age = _parse_age(localized.dt_nasc)
     if localized.altura is not None:
-        height = localized.altura.str.replace('m', '').str.split(
-            '-', expand=True).rename(
-                columns={0: 'height_inf', 1: 'height_sup'}
-        )
-        localized.height_inf = _parse_height(height['height_inf'])
-        localized.height_sup = _parse_height(height['height_sup'])
+        height_inf, height_sup = localized.altura.replace('m', '').split('-')
+        localized.height_inf = _parse_height(height_inf)
+        localized.height_sup = _parse_height(height_sup)
     else:
         localized.height_inf = np.nan
         localized.height_sup = np.nan
@@ -245,9 +239,8 @@ def missing_rank(localized_id):
     df = pandas.DataFrame(
         [c for c in search_all_missing(CURSOR)],
         columns=[
-            'id'
-            'identificador_sinalid',
             'nome',
+            'identificador_sinalid',
             'cpf',
             'rg',
             'sexo',

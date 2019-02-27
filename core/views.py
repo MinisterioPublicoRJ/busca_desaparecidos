@@ -47,4 +47,5 @@ class SearchView(TemplateView):
                 context['result'] = _prepare_result(result)
                 context['person_attrs'] = _prepare_person_attrs(person)
                 context['column_names'] = _columns(result)
+                context['search_type'] = cleaned_data['search_type']
                 return self.render_to_response(context)

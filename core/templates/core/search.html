@@ -37,7 +37,14 @@
                     <div class="col-4">
                         <div class="card">
                             <div class="card-body">
-                                <h3 class="card-title">Indivíduo</h3>
+                                <h3 class="card-title">
+                                    Indivíduo
+                                    {% if search_type == "1" %}
+                                        Desaparecido
+                                    {% elif search_type == "2" %}
+                                        Localizado
+                                    {% endif %}
+                                </h3>
                                 <div class="row">
                                     <div class="col-auto">
                                         <div class="foto foto-desconhecida"></div>
@@ -105,7 +112,14 @@
                     <div class="col-8">
                         <div class="card">
                             <div class="card-body">
-                                <h3>Resultado da Busca</h3>
+                                <h3>
+                                    Resultado da Busca: Indivíduos
+                                    {% if search_type == "1" %}
+                                        Localizados
+                                    {% elif search_type == "2" %}
+                                        Desaparecidos
+                                    {% endif %}
+                                </h3>
                                 <table class="table table-borderless text-center">
                                     <thead>
                                         <tr>
@@ -124,7 +138,7 @@
                                     <tbody>
                                         {% for row in result %}
                                             <tr>
-                                                <td><!--<a href="search?search_type=2&search_id={{row.identificador_sinalid}}">-->{{row.identificador_sinalid}}<!--</a>--></td>
+                                                <td><a href='search?search_type={% if search_type == "1" %}2{% elif search_type == "2" %}1{% endif %}&search_id={{row.identificador_sinalid}}'>{{row.identificador_sinalid}}</a></td>
                                                 <td>{{row.nome | default_if_none:"—"}}</td>
                                                 <td>{{row.sexo}}</td>
                                                 <td>{{row.altura | default_if_none:"—"}}</td>
