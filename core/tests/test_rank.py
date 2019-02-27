@@ -24,7 +24,7 @@ class Rank(TestCase):
 
 
 class AutoSearchType(TestCase):
-    def test_find_search_type_based_on_id(self):
+    def test_find_search_type_based_on_id_search_type_one(self):
         """
             If DS in id it is a missing person
         """
@@ -32,5 +32,16 @@ class AutoSearchType(TestCase):
 
         st = search_type(_id)
         expected = 1
+
+        self.assertEqual(st, expected)
+
+    def test_find_search_type_based_on_id_search_type_two(self):
+        """
+            If DS in id it is a missing person
+        """
+        _id = '1234RJ98765'
+
+        st = search_type(_id)
+        expected = 2
 
         self.assertEqual(st, expected)
