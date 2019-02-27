@@ -1,6 +1,6 @@
 from unittest import TestCase, mock
 
-from core.rank import missing_rank, localized_rank
+from core.rank import missing_rank, localized_rank, search_type
 
 
 class Rank(TestCase):
@@ -21,3 +21,16 @@ class Rank(TestCase):
 
         self.assertTrue(rank is None)
         self.assertTrue(person is None)
+
+
+class AutoSearchType(TestCase):
+    def test_find_search_type_based_on_id(self):
+        """
+            If DS in id it is a missing person
+        """
+        _id = '1234RJDS98765'
+
+        st = search_type(_id)
+        expected = 1
+
+        self.assertEqual(st, expected)

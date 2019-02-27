@@ -33,6 +33,13 @@ def _parse_height(altura):
         return np.nan
 
 
+def search_type(_id):
+    if 'DS' in _id:
+        return 1
+    else:
+        return 2
+
+
 def same_gender(df, gender):
     return df.loc[df.sexo == gender]
 
