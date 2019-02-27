@@ -239,9 +239,8 @@ def missing_rank(localized_id):
     df = pandas.DataFrame(
         [c for c in search_all_missing(CURSOR)],
         columns=[
-            'id'
-            'identificador_sinalid',
             'nome',
+            'identificador_sinalid',
             'cpf',
             'rg',
             'sexo',
