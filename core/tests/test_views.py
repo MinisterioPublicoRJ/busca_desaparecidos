@@ -49,7 +49,7 @@ class ViewsTest(TestCase):
         _cols.return_value = 'col names'
 
         _mis_rank.return_value = ['person', 'df']
-        url = reverse('core:search') + '?search_id=1234&search_type=2'
+        url = reverse('core:search') + '?search_id=1234'
 
         resp = self.client.get(url)
 
@@ -67,7 +67,7 @@ class ViewsTest(TestCase):
     def test_missing_not_found(self, _loc_rank):
         _loc_rank.return_value = [None, None]
 
-        url = reverse('core:search') + '?search_id=nonexistent&search_type=1'
+        url = reverse('core:search') + '?search_id=nonexistent'
 
         resp = self.client.get(url)
 
@@ -82,7 +82,7 @@ class ViewsTest(TestCase):
     def test_localized_not_found(self, _mis_rank):
         _mis_rank.return_value = [None, None]
 
-        url = reverse('core:search') + '?search_id=nonexistent&search_type=1'
+        url = reverse('core:search') + '?search_id=nonexistent'
 
         resp = self.client.get(url)
 
