@@ -91,3 +91,14 @@ class ViewsTest(TestCase):
             resp.content.decode()
         )
         self.assertIn('form', resp.context)
+
+    @mock.patch('core.views.localized_rank')
+    def test_auto_discover_search_type(self, _loc_rank):
+        # Make localized_rank return None to avoid other functions calls
+        _loc_rank.return_value = (None, None)
+
+        url = reverse('core:search') + '?search_id=1234DS4567'
+        resp = self.client.get(url)
+
+        self.assertEqual(resp.status_code, 200)
+        _loc_rank.assert_called_once_with('1234DS4567')
