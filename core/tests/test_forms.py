@@ -11,7 +11,7 @@ class SearchFormTest(TestCase):
         self.assertTrue(form.is_valid())
 
     def test_invalid_form(self):
-        form_data = {'search_id': '12345', 'search_type': 20}
+        form_data = {}
         form = SearchForm(data=form_data)
 
         self.assertFalse(form.is_valid())
