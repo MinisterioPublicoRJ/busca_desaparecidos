@@ -56,72 +56,33 @@ class AutoSearchType(TestCase):
 
 
 class LatLongRank(TestCase):
-    target_data = (
-        dt(2017, 2, 2, 0, 0),
-        None,
-        None,
-        None,
-        Decimal('-22.8658255011035'),
-        Decimal('-53.2539217453901'),
-        'BAIRRO',
-        'CIDADE',
-        '12345'
-    )
-    target_df = pandas.Series(
-        target_data,
-        index=[
-            'data_fato',
-            'cidade_latitude',
-            'cidade_longitude',
-            'cidade_nome',
-            'bairro_latitude',
-            'bairro_longitude',
-            'bairro_nome',
-            'cidade_bairro',
-            'id_sinalid'
-        ]
-    )
-    all_person_data = [
-        (
-            dt(2015, 2, 2, 0, 0),
-            None,
-            None,
-            None,
-            Decimal('-22.8658255011035'),
-            Decimal('-70.2539217453901'),
-            'BAIRRO 1',
-            'CIDADE 1',
-            '12345'
-        ),
-        (
+    def setUp(self):
+        target_data = (
             dt(2017, 2, 2, 0, 0),
             None,
             None,
             None,
             Decimal('-22.8658255011035'),
-            Decimal('-51.2539217453901'),
-            'BAIRRO 2',
-            'CIDADE 2',
-            '67890'
+            Decimal('-53.2539217453901'),
+            'BAIRRO',
+            'CIDADE',
+            '12345'
         )
-    ]
-    all_persons_df = pandas.DataFrame(
-        all_person_data,
-        columns=[
-            'data_fato',
-            'cidade_latitude',
-            'cidade_longitude',
-            'cidade_nome',
-            'bairro_latitude',
-            'bairro_longitude',
-            'bairro_nome',
-            'cidade_bairro',
-            'id_sinalid'
-        ]
-    )
-    score_df = lat_long_score(target_df, all_persons_df)
-    expected_score_df = pandas.DataFrame(
-        [
+        self.target_df = pandas.Series(
+            target_data,
+            index=[
+                'data_fato',
+                'cidade_latitude',
+                'cidade_longitude',
+                'cidade_nome',
+                'bairro_latitude',
+                'bairro_longitude',
+                'bairro_nome',
+                'cidade_bairro',
+                'id_sinalid'
+            ]
+        )
+        all_person_data = [
             (
                 dt(2015, 2, 2, 0, 0),
                 None,
@@ -131,8 +92,7 @@ class LatLongRank(TestCase):
                 Decimal('-70.2539217453901'),
                 'BAIRRO 1',
                 'CIDADE 1',
-                '12345',
-                0.000573516963808812
+                '12345'
             ),
             (
                 dt(2017, 2, 2, 0, 0),
@@ -143,22 +103,113 @@ class LatLongRank(TestCase):
                 Decimal('-51.2539217453901'),
                 'BAIRRO 2',
                 'CIDADE 2',
-                '67890',
-                0.004872211615539773
+                '67890'
             )
-        ],
-        columns=[
-            'data_fato',
-            'cidade_latitude',
-            'cidade_longitude',
-            'cidade_nome',
-            'bairro_latitude',
-            'bairro_longitude',
-            'bairro_nome',
-            'cidade_bairro',
-            'id_sinalid',
-            'lat_long_score'
         ]
+        self.all_persons_df = pandas.DataFrame(
+            all_person_data,
+            columns=[
+                'data_fato',
+                'cidade_latitude',
+                'cidade_longitude',
+                'cidade_nome',
+                'bairro_latitude',
+                'bairro_longitude',
+                'bairro_nome',
+                'cidade_bairro',
+                'id_sinalid'
+            ]
+        )
 
-    )
-    pandas.testing.assert_frame_equal(score_df, expected_score_df)
+    def test_simple_distance(self):
+        score_df = lat_long_score(self.target_df, self.all_persons_df)
+        expected_score_df = pandas.DataFrame(
+            [
+                (
+                    dt(2015, 2, 2, 0, 0),
+                    None,
+                    None,
+                    None,
+                    Decimal('-22.8658255011035'),
+                    Decimal('-70.2539217453901'),
+                    'BAIRRO 1',
+                    'CIDADE 1',
+                    '12345',
+                    0.000573516963808812
+                ),
+                (
+                    dt(2017, 2, 2, 0, 0),
+                    None,
+                    None,
+                    None,
+                    Decimal('-22.8658255011035'),
+                    Decimal('-51.2539217453901'),
+                    'BAIRRO 2',
+                    'CIDADE 2',
+                    '67890',
+                    0.004872211615539773
+                )
+            ],
+            columns=[
+                'data_fato',
+                'cidade_latitude',
+                'cidade_longitude',
+                'cidade_nome',
+                'bairro_latitude',
+                'bairro_longitude',
+                'bairro_nome',
+                'cidade_bairro',
+                'id_sinalid',
+                'lat_long_score'
+            ]
+
+        )
+        pandas.testing.assert_frame_equal(score_df, expected_score_df)
+
+    def test_avoid_zero_division_error(self):
+        self.all_persons_df.loc[0, ['bairro_latitude', 'bairro_longitude']]\
+            = (Decimal('-22.8658255011035'), Decimal('-53.2539217453901'))
+
+        score_df = lat_long_score(self.target_df, self.all_persons_df)
+        expected_score_df = pandas.DataFrame(
+            [
+                (
+                    dt(2015, 2, 2, 0, 0),
+                    None,
+                    None,
+                    None,
+                    Decimal('-22.8658255011035'),
+                    Decimal('-53.2539217453901'),
+                    'BAIRRO 1',
+                    'CIDADE 1',
+                    '12345',
+                    1
+                ),
+                (
+                    dt(2017, 2, 2, 0, 0),
+                    None,
+                    None,
+                    None,
+                    Decimal('-22.8658255011035'),
+                    Decimal('-51.2539217453901'),
+                    'BAIRRO 2',
+                    'CIDADE 2',
+                    '67890',
+                    0.004872211615539773
+                )
+            ],
+            columns=[
+                'data_fato',
+                'cidade_latitude',
+                'cidade_longitude',
+                'cidade_nome',
+                'bairro_latitude',
+                'bairro_longitude',
+                'bairro_nome',
+                'cidade_bairro',
+                'id_sinalid',
+                'lat_long_score'
+            ]
+
+        )
+        pandas.testing.assert_frame_equal(score_df, expected_score_df)

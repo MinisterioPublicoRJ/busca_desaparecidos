@@ -268,16 +268,22 @@ def missing_rank(localized_id):
 
 
 def lat_long_score(target_df, all_persons_df):
+    def score(coord_1, coord_2):
+        try:
+            return 1 / distance(coord_1, coord_2).kilometers
+        except ZeroDivisionError:
+            return 1
+
     lat_long_score = partial(
-        distance,
+        score,
         target_df[['bairro_latitude', 'bairro_longitude']]
     )
 
     lat_long_df = all_persons_df.copy()
     lat_long_df['lat_long_score'] = lat_long_df.apply(
-        lambda row: 1 / lat_long_score(
+        lambda row: lat_long_score(
             row[['bairro_latitude', 'bairro_longitude']]
-        ).kilometers,
+        ),
         axis='columns'
     )
     return lat_long_df
