@@ -8,6 +8,7 @@ QUERY_SINGLE_MISSING = config('QUERY_SINGLE_MISSING')
 QUERY_ALL_MISSING = config('QUERY_ALL_MISSING')
 QUERY_SINGLE_LOCALIZED = config('QUERY_SINGLE_LOCALIZED')
 QUERY_ALL_LOCALIZED = config('QUERY_ALL_LOCALIZED')
+QUERY_ALL_PERSONS = config('QUERY_ALL_PERSONS')
 
 
 def client():
@@ -41,6 +42,25 @@ def search_target_person(cursor, id_sinalid):
             'cidade_bairro',
             'id_sinalid'
         ]
+    )
+
+
+def all_persons(cursor):
+    result = next(cursor.execute(QUERY_ALL_PERSONS))
+    return pandas.DataFrame(
+        result,
+        columns=[
+            'data_fato',
+            'cidade_latitude',
+            'cidade_longitude',
+            'cidade_nome',
+            'bairro_latitude',
+            'bairro_longitude',
+            'bairro_nome',
+            'cidade_bairro',
+            'id_sinalid'
+        ]
+
     )
 
 

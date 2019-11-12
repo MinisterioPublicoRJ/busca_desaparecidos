@@ -4,9 +4,9 @@ from unittest import TestCase, mock
 
 import pandas
 
-from core.dao import (
-    search_single_localized,
-    search_target_person)
+from decouple import config
+
+from core.dao import search_target_person, all_persons
 
 
 class Dao(TestCase):
@@ -47,6 +47,9 @@ class Dao(TestCase):
         )
 
         pandas.testing.assert_series_equal(person, expected_person)
+        cursor_mock.execute.assert_called_once_with(
+            config('QUERY_SINGLE_TARGET').format(id=id_sinalid)
+        )
 
     def test_id_sinalid_not_found(self):
         def query_result(*args):
@@ -62,16 +65,55 @@ class Dao(TestCase):
 
         self.assertTrue(person is None)
 
-    def test_localized_id_not_found(self):
-        def query_result(*args):
-            return
-            yield
+    def test_retrieve_all_person(self):
+        person_data = [
+            (
+                dt(2017, 2, 2, 0, 0),
+                None,
+                None,
+                None,
+                Decimal('-22.8658255011035'),
+                Decimal('-53.2539217453901'),
+                'BAIRRO',
+                'CIDADE',
+                '12345'
+            ),
+            (
+                dt(2017, 2, 2, 0, 0),
+                None,
+                None,
+                None,
+                Decimal('-22.8658255011035'),
+                Decimal('-53.2539217453901'),
+                'BAIRRO',
+                'CIDADE',
+                '12345'
+            )
+        ]
 
-        search_id = '1234'
+        def fake_gen(data):
+            yield data
 
         cursor_mock = mock.MagicMock()
+        cursor_mock.execute.return_value = fake_gen(person_data)
+        expected_persons = pandas.DataFrame(
+            person_data,
+            columns=[
+                'data_fato',
+                'cidade_latitude',
+                'cidade_longitude',
+                'cidade_nome',
+                'bairro_latitude',
+                'bairro_longitude',
+                'bairro_nome',
+                'cidade_bairro',
+                'id_sinalid'
+            ]
+        )
 
-        cursor_mock.execute.return_value = query_result()
-        person = search_single_localized(cursor_mock, search_id)
+        persons = all_persons(cursor_mock)
 
-        self.assertTrue(person is None)
+        pandas.testing.assert_frame_equal(persons, expected_persons)
+        cursor_mock.execute.assert_called_once_with(
+            config('QUERY_ALL_PERSONS')
+        )
