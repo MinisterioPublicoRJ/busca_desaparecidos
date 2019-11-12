@@ -269,10 +269,15 @@ def missing_rank(localized_id):
 
 def lat_long_score(target_df, all_persons_df):
     def score(coord_1, row):
-        if row['bairro_latitude'] is None or row['bairro_longitude'] is None:
+        if row['bairro_latitude'] is not None\
+                or row['bairro_longitude'] is not None:
+            coord_2 = (row['bairro_latitude'], row['bairro_longitude'])
+
+        elif row['cidade_latitude'] is not None\
+                or row['cidade_longitude'] is not None:
             coord_2 = (row['cidade_latitude'], row['cidade_longitude'])
         else:
-            coord_2 = (row['bairro_latitude'], row['bairro_longitude'])
+            return 0
 
         try:
             return 1 / distance(coord_1, coord_2).kilometers
