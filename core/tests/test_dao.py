@@ -5,7 +5,6 @@ from unittest import TestCase, mock
 import pandas
 
 from core.dao import (
-    search_single_missing,
     search_single_localized,
     search_target_person)
 
@@ -49,7 +48,7 @@ class Dao(TestCase):
 
         pandas.testing.assert_series_equal(person, expected_person)
 
-    def test_missing_id_not_found(self):
+    def test_id_sinalid_not_found(self):
         def query_result(*args):
             return
             yield
@@ -59,7 +58,7 @@ class Dao(TestCase):
         cursor_mock = mock.MagicMock()
 
         cursor_mock.execute.return_value = query_result()
-        person = search_single_missing(cursor_mock, search_id)
+        person = search_target_person(cursor_mock, search_id)
 
         self.assertTrue(person is None)
 
