@@ -213,3 +213,58 @@ class LatLongRank(TestCase):
 
         )
         pandas.testing.assert_frame_equal(score_df, expected_score_df)
+
+    def test_distance_using_city(self):
+        "When some rows has no neighborhood information"
+
+        self.all_persons_df.loc[0, ['cidade_latitude', 'cidade_longitude']]\
+            = [Decimal('-22.8658255011035'), Decimal('-70.2539217453901')]
+        self.all_persons_df.loc[0, 'cidade_nome'] = 'CIDADE 1'
+        self.all_persons_df.loc[0, 'cidade_bairro'] = None
+        self.all_persons_df.loc[0, 'bairro_nome'] = None
+        self.all_persons_df.loc[0, ['bairro_latitude', 'bairro_longitude']]\
+            = [None, None]
+
+        score_df = lat_long_score(self.target_df, self.all_persons_df)
+        expected_score_df = pandas.DataFrame(
+            [
+                (
+                    dt(2015, 2, 2, 0, 0),
+                    Decimal('-22.8658255011035'),
+                    Decimal('-70.2539217453901'),
+                    'CIDADE 1',
+                    None,
+                    None,
+                    None,
+                    None,
+                    '12345',
+                    0.000573516963808812
+                ),
+                (
+                    dt(2017, 2, 2, 0, 0),
+                    None,
+                    None,
+                    None,
+                    Decimal('-22.8658255011035'),
+                    Decimal('-51.2539217453901'),
+                    'BAIRRO 2',
+                    'CIDADE 2',
+                    '67890',
+                    0.004872211615539773
+                )
+            ],
+            columns=[
+                'data_fato',
+                'cidade_latitude',
+                'cidade_longitude',
+                'cidade_nome',
+                'bairro_latitude',
+                'bairro_longitude',
+                'bairro_nome',
+                'cidade_bairro',
+                'id_sinalid',
+                'lat_long_score'
+            ]
+
+        )
+        pandas.testing.assert_frame_equal(score_df, expected_score_df)

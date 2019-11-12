@@ -268,7 +268,12 @@ def missing_rank(localized_id):
 
 
 def lat_long_score(target_df, all_persons_df):
-    def score(coord_1, coord_2):
+    def score(coord_1, row):
+        if row['bairro_latitude'] is None or row['bairro_longitude'] is None:
+            coord_2 = (row['cidade_latitude'], row['cidade_longitude'])
+        else:
+            coord_2 = (row['bairro_latitude'], row['bairro_longitude'])
+
         try:
             return 1 / distance(coord_1, coord_2).kilometers
         except ZeroDivisionError:
@@ -281,9 +286,6 @@ def lat_long_score(target_df, all_persons_df):
 
     lat_long_df = all_persons_df.copy()
     lat_long_df['lat_long_score'] = lat_long_df.apply(
-        lambda row: lat_long_score(
-            row[['bairro_latitude', 'bairro_longitude']]
-        ),
-        axis='columns'
+        lambda row: lat_long_score(row), axis='columns'
     )
     return lat_long_df
