@@ -1,9 +1,11 @@
+from datetime import datetime as dt
+from functools import partial
+
 import numpy as np
 import pandas
 
-from datetime import datetime as dt
-
 from decouple import config
+from geopy.distance import distance
 
 from core.dao import (
     client,
@@ -263,3 +265,19 @@ def missing_rank(localized_id):
         ]
     )
     return rank_disappearances(df, localized)
+
+
+def lat_long_score(target_df, all_persons_df):
+    lat_long_score = partial(
+        distance,
+        target_df[['bairro_latitude', 'bairro_longitude']]
+    )
+
+    lat_long_df = all_persons_df.copy()
+    lat_long_df['lat_long_score'] = lat_long_df.apply(
+        lambda row: 1 / lat_long_score(
+            row[['bairro_latitude', 'bairro_longitude']]
+        ).kilometers,
+        axis='columns'
+    )
+    return lat_long_df

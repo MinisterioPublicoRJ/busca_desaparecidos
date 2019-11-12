@@ -1,6 +1,14 @@
+from datetime import datetime as dt
+from decimal import Decimal
 from unittest import TestCase, mock
 
-from core.rank import missing_rank, localized_rank, search_type
+import pandas
+
+from core.rank import (
+    missing_rank,
+    localized_rank,
+    search_type,
+    lat_long_score)
 
 
 class Rank(TestCase):
@@ -45,3 +53,112 @@ class AutoSearchType(TestCase):
         expected = 2
 
         self.assertEqual(st, expected)
+
+
+class LatLongRank(TestCase):
+    target_data = (
+        dt(2017, 2, 2, 0, 0),
+        None,
+        None,
+        None,
+        Decimal('-22.8658255011035'),
+        Decimal('-53.2539217453901'),
+        'BAIRRO',
+        'CIDADE',
+        '12345'
+    )
+    target_df = pandas.Series(
+        target_data,
+        index=[
+            'data_fato',
+            'cidade_latitude',
+            'cidade_longitude',
+            'cidade_nome',
+            'bairro_latitude',
+            'bairro_longitude',
+            'bairro_nome',
+            'cidade_bairro',
+            'id_sinalid'
+        ]
+    )
+    all_person_data = [
+        (
+            dt(2015, 2, 2, 0, 0),
+            None,
+            None,
+            None,
+            Decimal('-22.8658255011035'),
+            Decimal('-70.2539217453901'),
+            'BAIRRO 1',
+            'CIDADE 1',
+            '12345'
+        ),
+        (
+            dt(2017, 2, 2, 0, 0),
+            None,
+            None,
+            None,
+            Decimal('-22.8658255011035'),
+            Decimal('-51.2539217453901'),
+            'BAIRRO 2',
+            'CIDADE 2',
+            '67890'
+        )
+    ]
+    all_persons_df = pandas.DataFrame(
+        all_person_data,
+        columns=[
+            'data_fato',
+            'cidade_latitude',
+            'cidade_longitude',
+            'cidade_nome',
+            'bairro_latitude',
+            'bairro_longitude',
+            'bairro_nome',
+            'cidade_bairro',
+            'id_sinalid'
+        ]
+    )
+    score_df = lat_long_score(target_df, all_persons_df)
+    expected_score_df = pandas.DataFrame(
+        [
+            (
+                dt(2015, 2, 2, 0, 0),
+                None,
+                None,
+                None,
+                Decimal('-22.8658255011035'),
+                Decimal('-70.2539217453901'),
+                'BAIRRO 1',
+                'CIDADE 1',
+                '12345',
+                0.000573516963808812
+            ),
+            (
+                dt(2017, 2, 2, 0, 0),
+                None,
+                None,
+                None,
+                Decimal('-22.8658255011035'),
+                Decimal('-51.2539217453901'),
+                'BAIRRO 2',
+                'CIDADE 2',
+                '67890',
+                0.004872211615539773
+            )
+        ],
+        columns=[
+            'data_fato',
+            'cidade_latitude',
+            'cidade_longitude',
+            'cidade_nome',
+            'bairro_latitude',
+            'bairro_longitude',
+            'bairro_nome',
+            'cidade_bairro',
+            'id_sinalid',
+            'lat_long_score'
+        ]
+
+    )
+    pandas.testing.assert_frame_equal(score_df, expected_score_df)
