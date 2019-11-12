@@ -20,10 +20,35 @@ def client():
     return cursor
 
 
+def search_target_person(cursor, id_sinalid):
+    result = cursor.execute(QUERY_SINGLE_MISSING.format(id=id_sinalid))
+    try:
+        person = next(result)
+        print(person)
+    except StopIteration:
+        return None
+
+    return pandas.Series(
+        person,
+        index=[
+            'data_fato',
+            'cidade_latitude',
+            'cidade_longitude',
+            'cidade_nome',
+            'bairro_latitude',
+            'bairro_longitude',
+            'bairro_nome',
+            'cidade_bairro',
+            'id_sinalid'
+        ]
+    )
+
+
 def search_single_missing(cursor, search_id):
     result = cursor.execute(QUERY_SINGLE_MISSING.format(id=search_id))
     try:
         person = next(result)
+        print(person)
     except StopIteration:
         return None
 
