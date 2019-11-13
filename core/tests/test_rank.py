@@ -1,10 +1,15 @@
 from datetime import datetime as dt
 from decimal import Decimal
-from unittest import TestCase
+from unittest import TestCase, mock
 
 import pandas
 
-from core.rank import lat_long_score, date_score, final_score
+from core.rank import (
+    lat_long_score,
+    date_score,
+    final_score,
+    calculate_scores
+)
 
 
 class LatLongScore(TestCase):
@@ -583,6 +588,18 @@ class FactDate(TestCase):
 
 
 class FinalScore(TestCase):
+    @mock.patch('core.rank.date_score', return_value='date score')
+    @mock.patch('core.rank.lat_long_score', return_value='lat long score')
+    def test_run_all_scores(self, _ll_score, _dt_score):
+        target_person = 'person'
+        all_persons_df = 'all persons'
+
+        score_df = calculate_scores(target_person, all_persons_df)
+
+        _ll_score.assert_called_once_with(target_person, all_persons_df)
+        _dt_score.assert_called_once_with(target_person, 'lat long score')
+        self.assertEqual(score_df, 'date score')
+
     def test_calculate_final_score(self):
         all_person_data = [
             (

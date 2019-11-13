@@ -53,6 +53,19 @@ def date_score(target_df, all_persons_df):
     return dt_score_df
 
 
+def calculate_scores(target_person, all_persons_df):
+    scores = [
+        lat_long_score,
+        date_score
+    ]
+
+    score_df = scores[0](target_person, all_persons_df)
+    for score in scores[1:]:
+        score_df = score(target_person, score_df)
+
+    return score_df
+
+
 def final_score(all_persons_df):
     scores = [
         'lat_long_score',
