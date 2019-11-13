@@ -4,24 +4,21 @@ from unittest import TestCase, mock
 
 import pandas
 
-from decouple import config
-
 from core.dao import search_target_person, all_persons
+from core.queries import QUERY_SINGLE_TARGET, QUERY_ALL_PERSONS
 
 
 class Dao(TestCase):
     def test_search_target_person(self):
         person_data = (
             dt(2017, 2, 2, 0, 0),
-            None,
-            None,
-            None,
             Decimal('-22.8658255011035'),
             Decimal('-53.2539217453901'),
             'BAIRRO',
-            'CIDADE',
+            'CIDADE BAIRRO',
             Decimal('-22.9232212815581'),
             Decimal('-43.4509333229307'),
+            'CIDADE'
             '12345'
         )
 
@@ -37,22 +34,19 @@ class Dao(TestCase):
             person_data,
             index=[
                 'data_fato',
-                'cidade_latitude',
-                'cidade_longitude',
-                'cidade_nome',
                 'bairro_latitude',
                 'bairro_longitude',
                 'bairro_nome',
-                'cidade_bairro',
-                'cidade_bairro_latitude',
-                'cidade_bairro_longitude',
+                'cidade_latitude',
+                'cidade_longitude',
+                'cidade_nome',
                 'id_sinalid'
             ]
         )
 
         pandas.testing.assert_series_equal(person, expected_person)
         cursor_mock.execute.assert_called_once_with(
-            config('QUERY_SINGLE_TARGET').format(id=id_sinalid)
+            QUERY_SINGLE_TARGET.format(id=id_sinalid)
         )
 
     def test_id_sinalid_not_found(self):
@@ -73,50 +67,40 @@ class Dao(TestCase):
         person_data = [
             (
                 dt(2017, 2, 2, 0, 0),
-                None,
-                None,
-                None,
                 Decimal('-22.8658255011035'),
                 Decimal('-53.2539217453901'),
                 'BAIRRO',
-                'CIDADE',
+                'CIDADE BAIRRO',
                 Decimal('-22.9232212815581'),
                 Decimal('-43.4509333229307'),
+                'CIDADE'
                 '12345'
             ),
             (
                 dt(2017, 2, 2, 0, 0),
-                None,
-                None,
-                None,
                 Decimal('-22.8658255011035'),
                 Decimal('-53.2539217453901'),
                 'BAIRRO',
-                'CIDADE',
+                'CIDADE BAIRRO',
                 Decimal('-22.9232212815581'),
                 Decimal('-43.4509333229307'),
+                'CIDADE'
                 '12345'
             )
         ]
 
-        def fake_gen(data):
-            yield data
-
         cursor_mock = mock.MagicMock()
-        cursor_mock.execute.return_value = fake_gen(person_data)
+        cursor_mock.execute.return_value = person_data
         expected_persons = pandas.DataFrame(
             person_data,
             columns=[
                 'data_fato',
-                'cidade_latitude',
-                'cidade_longitude',
-                'cidade_nome',
                 'bairro_latitude',
                 'bairro_longitude',
                 'bairro_nome',
-                'cidade_bairro',
-                'cidade_bairro_latitude',
-                'cidade_bairro_longitude',
+                'cidade_latitude',
+                'cidade_longitude',
+                'cidade_nome',
                 'id_sinalid'
             ]
         )
@@ -125,5 +109,5 @@ class Dao(TestCase):
 
         pandas.testing.assert_frame_equal(persons, expected_persons)
         cursor_mock.execute.assert_called_once_with(
-            config('QUERY_ALL_PERSONS')
+            QUERY_ALL_PERSONS
         )
