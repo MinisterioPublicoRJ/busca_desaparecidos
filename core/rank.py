@@ -35,6 +35,8 @@ def lat_long_score(target_df, all_persons_df):
 
 def date_score(target_df, all_persons_df):
     def score(target_dt, row_dt):
+        if target_dt is None:
+            return 0.0
         return 1 / abs((target_dt - row_dt).days)
 
     dt_score_df = all_persons_df.copy()
