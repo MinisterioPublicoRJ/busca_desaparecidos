@@ -15,10 +15,9 @@ class Dao(TestCase):
             Decimal('-22.8658255011035'),
             Decimal('-53.2539217453901'),
             'BAIRRO',
-            'CIDADE BAIRRO',
             Decimal('-22.9232212815581'),
             Decimal('-43.4509333229307'),
-            'CIDADE'
+            'CIDADE',
             '12345'
         )
 
@@ -70,10 +69,9 @@ class Dao(TestCase):
                 Decimal('-22.8658255011035'),
                 Decimal('-53.2539217453901'),
                 'BAIRRO',
-                'CIDADE BAIRRO',
                 Decimal('-22.9232212815581'),
                 Decimal('-43.4509333229307'),
-                'CIDADE'
+                'CIDADE',
                 '12345'
             ),
             (
@@ -81,10 +79,9 @@ class Dao(TestCase):
                 Decimal('-22.8658255011035'),
                 Decimal('-53.2539217453901'),
                 'BAIRRO',
-                'CIDADE BAIRRO',
                 Decimal('-22.9232212815581'),
                 Decimal('-43.4509333229307'),
-                'CIDADE'
+                'CIDADE',
                 '12345'
             )
         ]
