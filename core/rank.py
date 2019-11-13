@@ -31,3 +31,14 @@ def lat_long_score(target_df, all_persons_df):
         lambda row: lat_long_score(row), axis='columns'
     )
     return lat_long_df
+
+
+def date_score(target_df, all_persons_df):
+    def score(target_dt, row_dt):
+        return 1 / abs((target_dt - row_dt).days)
+
+    dt_score_df = all_persons_df.copy()
+    dt_score_df['date_score'] = dt_score_df.data_fato.map(
+        lambda x: score(target_df['data_fato'], x)
+    )
+    return dt_score_df
