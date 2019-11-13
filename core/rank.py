@@ -42,7 +42,7 @@ def date_score(target_df, all_persons_df):
             try:
                 return 1 / abs((target_dt - row_dt).days)
             except ZeroDivisionError:
-                return 1.0
+                return 1.1
 
         return 0.0
 

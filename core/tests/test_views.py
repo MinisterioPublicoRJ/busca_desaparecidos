@@ -93,9 +93,9 @@ class ViewsTest(TestCase):
         final_score_df['lat_long_score'] = [
             0.0032481722119593265, 0.0013921806850195795
         ]
-        final_score_df['date_score'] = [1.0, 1.0]
+        final_score_df['date_score'] = [1.1, 1.1]
         final_score_df['final_score'] = [
-            1.0032481722119593, 1.0013921806850197
+            1.1032481722119594, 1.1013921806850198
         ]
 
         _search.return_value = target_df
@@ -126,6 +126,6 @@ class ViewsTest(TestCase):
             expected_person_attrs
         )
         self.assertEqual(
-            list(resp.context['results']),
+            resp.context['results'],
             list(final_score_df.itertuples(index=False))
         )

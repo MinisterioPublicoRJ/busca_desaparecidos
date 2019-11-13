@@ -581,7 +581,7 @@ class FactDate(TestCase):
         score_df = date_score(target_df, all_persons_df)
 
         expected = all_persons_df.copy()
-        expected.loc[0, 'date_score'] = 1.0
+        expected.loc[0, 'date_score'] = 1.1
         expected.loc[1, 'date_score'] = 0.0
 
         pandas.testing.assert_frame_equal(score_df, expected)

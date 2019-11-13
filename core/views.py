@@ -7,7 +7,7 @@ from core.rank import calculate_scores, final_score
 
 
 def _prepare_results(result, n_results=10):
-    return result.head(n_results).itertuples(index=False)
+    return list(result.head(n_results).itertuples(index=False))
 
 
 def _prepare_person_attrs(person):
