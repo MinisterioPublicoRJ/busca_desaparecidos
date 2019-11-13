@@ -504,3 +504,41 @@ class FactDate(TestCase):
         expected.loc[1, 'date_score'] = 0.0
 
         pandas.testing.assert_frame_equal(score_df, expected)
+
+    def test_fact_date_score_one_row_has_no_date_info(self):
+        target_data = (
+            dt(2017, 2, 2, 0, 0),
+            '12345'
+        )
+        target_df = pandas.Series(
+            target_data,
+            index=[
+                'data_fato',
+                'id_sinalid'
+            ]
+        )
+        all_person_data = [
+            (
+                dt(2018, 2, 2, 0, 0),
+                '12345'
+            ),
+            (
+                None,
+                '67890'
+            )
+        ]
+        all_persons_df = pandas.DataFrame(
+            all_person_data,
+            columns=[
+                'data_fato',
+                'id_sinalid'
+            ]
+        )
+
+        score_df = date_score(target_df, all_persons_df)
+
+        expected = all_persons_df.copy()
+        expected.loc[0, 'date_score'] = 0.0027397260273972603
+        expected.loc[1, 'date_score'] = 0.0
+
+        pandas.testing.assert_frame_equal(score_df, expected)

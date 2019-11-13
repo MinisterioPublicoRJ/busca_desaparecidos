@@ -1,5 +1,7 @@
 from functools import partial
 
+import pandas
+
 from geopy.distance import distance
 
 
@@ -35,9 +37,10 @@ def lat_long_score(target_df, all_persons_df):
 
 def date_score(target_df, all_persons_df):
     def score(target_dt, row_dt):
-        if target_dt is None:
-            return 0.0
-        return 1 / abs((target_dt - row_dt).days)
+        if target_dt is not None and not pandas.isnull(row_dt):
+            return 1 / abs((target_dt - row_dt).days)
+
+        return 0.0
 
     dt_score_df = all_persons_df.copy()
     dt_score_df['date_score'] = dt_score_df.data_fato.map(
