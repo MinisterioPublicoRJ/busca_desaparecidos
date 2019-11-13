@@ -4,7 +4,7 @@ import pandas
 from decouple import config
 
 
-QUERY_SINGLE_MISSING = config('QUERY_SINGLE_MISSING')
+QUERY_SINGLE_TARGET = config('QUERY_SINGLE_TARGET')
 QUERY_ALL_MISSING = config('QUERY_ALL_MISSING')
 QUERY_SINGLE_LOCALIZED = config('QUERY_SINGLE_LOCALIZED')
 QUERY_ALL_LOCALIZED = config('QUERY_ALL_LOCALIZED')
@@ -22,10 +22,9 @@ def client():
 
 
 def search_target_person(cursor, id_sinalid):
-    result = cursor.execute(QUERY_SINGLE_MISSING.format(id=id_sinalid))
+    result = cursor.execute(QUERY_SINGLE_TARGET.format(id=id_sinalid))
     try:
         person = next(result)
-        print(person)
     except StopIteration:
         return None
 
@@ -40,6 +39,8 @@ def search_target_person(cursor, id_sinalid):
             'bairro_longitude',
             'bairro_nome',
             'cidade_bairro',
+            'cidade_bairro_latitude',
+            'cidade_bairro_longitude',
             'id_sinalid'
         ]
     )
@@ -58,6 +59,8 @@ def all_persons(cursor):
             'bairro_longitude',
             'bairro_nome',
             'cidade_bairro',
+            'cidade_bairro_latitude',
+            'cidade_bairro_longitude',
             'id_sinalid'
         ]
 

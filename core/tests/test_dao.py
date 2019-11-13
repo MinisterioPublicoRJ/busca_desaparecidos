@@ -20,6 +20,8 @@ class Dao(TestCase):
             Decimal('-53.2539217453901'),
             'BAIRRO',
             'CIDADE',
+            Decimal('-22.9232212815581'),
+            Decimal('-43.4509333229307'),
             '12345'
         )
 
@@ -42,6 +44,8 @@ class Dao(TestCase):
                 'bairro_longitude',
                 'bairro_nome',
                 'cidade_bairro',
+                'cidade_bairro_latitude',
+                'cidade_bairro_longitude',
                 'id_sinalid'
             ]
         )
@@ -76,6 +80,8 @@ class Dao(TestCase):
                 Decimal('-53.2539217453901'),
                 'BAIRRO',
                 'CIDADE',
+                Decimal('-22.9232212815581'),
+                Decimal('-43.4509333229307'),
                 '12345'
             ),
             (
@@ -87,6 +93,8 @@ class Dao(TestCase):
                 Decimal('-53.2539217453901'),
                 'BAIRRO',
                 'CIDADE',
+                Decimal('-22.9232212815581'),
+                Decimal('-43.4509333229307'),
                 '12345'
             )
         ]
@@ -107,6 +115,8 @@ class Dao(TestCase):
                 'bairro_longitude',
                 'bairro_nome',
                 'cidade_bairro',
+                'cidade_bairro_latitude',
+                'cidade_bairro_longitude',
                 'id_sinalid'
             ]
         )
