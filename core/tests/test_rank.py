@@ -55,23 +55,19 @@ class AutoSearchType(TestCase):
         self.assertEqual(st, expected)
 
 
-class LatLongRank(TestCase):
+class LatLongScore(TestCase):
     """
         Scenrarios:
 
         Single Target:
             1 - Bairro = True, Cidade = True
             2 - Bairro = False, Cidade = True
-            3 - Bairro = True, Cidade = False
-            4 - Bairro = False, Cidade = False
 
         All Persons
             I - Bairro = True, Cidade = True
             II - Bairro = False, Cidade = True
-            III - Bairro = True, Cidade = False
-            IV - Bairro = False, Cidade = False
     """
-    def setUp(self):
+    def test_target_has_bairro_rows_has_bairro(self):
         target_data = (
             dt(2017, 2, 2, 0, 0),
             None,
@@ -81,9 +77,11 @@ class LatLongRank(TestCase):
             Decimal('-53.2539217453901'),
             'BAIRRO',
             'CIDADE',
+            Decimal('-22.8658255011035'),
+            Decimal('-53.2539217453901'),
             '12345'
         )
-        self.target_df = pandas.Series(
+        target_df = pandas.Series(
             target_data,
             index=[
                 'data_fato',
@@ -94,6 +92,8 @@ class LatLongRank(TestCase):
                 'bairro_longitude',
                 'bairro_nome',
                 'cidade_bairro',
+                'cidade_bairro_latittude',
+                'cidade_bairro_longitude',
                 'id_sinalid'
             ]
         )
@@ -107,6 +107,8 @@ class LatLongRank(TestCase):
                 Decimal('-70.2539217453901'),
                 'BAIRRO 1',
                 'CIDADE 1',
+                Decimal('-22.8658255011035'),
+                Decimal('-70.2539217453901'),
                 '12345'
             ),
             (
@@ -118,10 +120,12 @@ class LatLongRank(TestCase):
                 Decimal('-51.2539217453901'),
                 'BAIRRO 2',
                 'CIDADE 2',
+                Decimal('-22.8658255011035'),
+                Decimal('-51.2539217453901'),
                 '67890'
             )
         ]
-        self.all_persons_df = pandas.DataFrame(
+        all_persons_df = pandas.DataFrame(
             all_person_data,
             columns=[
                 'data_fato',
@@ -132,282 +136,16 @@ class LatLongRank(TestCase):
                 'bairro_longitude',
                 'bairro_nome',
                 'cidade_bairro',
+                'cidade_bairro_latittude',
+                'cidade_bairro_longitude',
                 'id_sinalid'
             ]
         )
 
-    def test_simple_distance(self):
-        "Scenario  3:III -> use Bairro x Bairro information all cases"
-        score_df = lat_long_score(self.target_df, self.all_persons_df)
-        expected_score_df = pandas.DataFrame(
-            [
-                (
-                    dt(2015, 2, 2, 0, 0),
-                    None,
-                    None,
-                    None,
-                    Decimal('-22.8658255011035'),
-                    Decimal('-70.2539217453901'),
-                    'BAIRRO 1',
-                    'CIDADE 1',
-                    '12345',
-                    0.000573516963808812
-                ),
-                (
-                    dt(2017, 2, 2, 0, 0),
-                    None,
-                    None,
-                    None,
-                    Decimal('-22.8658255011035'),
-                    Decimal('-51.2539217453901'),
-                    'BAIRRO 2',
-                    'CIDADE 2',
-                    '67890',
-                    0.004872211615539773
-                )
-            ],
-            columns=[
-                'data_fato',
-                'cidade_latitude',
-                'cidade_longitude',
-                'cidade_nome',
-                'bairro_latitude',
-                'bairro_longitude',
-                'bairro_nome',
-                'cidade_bairro',
-                'id_sinalid',
-                'lat_long_score'
-            ]
+        score_df = lat_long_score(target_df, all_persons_df)
 
-        )
-        pandas.testing.assert_frame_equal(score_df, expected_score_df)
+        expected = all_persons_df.copy()
+        expected.loc[0, 'lat_long_score'] = 0.000573516963808812
+        expected.loc[1, 'lat_long_score'] = 0.004872211615539773
 
-    def test_avoid_zero_division_error(self):
-        "Scenario  3:III -> use Bairro x Bairro information all cases"
-        self.all_persons_df.loc[0, ['bairro_latitude', 'bairro_longitude']]\
-            = (Decimal('-22.8658255011035'), Decimal('-53.2539217453901'))
-
-        score_df = lat_long_score(self.target_df, self.all_persons_df)
-        expected_score_df = pandas.DataFrame(
-            [
-                (
-                    dt(2015, 2, 2, 0, 0),
-                    None,
-                    None,
-                    None,
-                    Decimal('-22.8658255011035'),
-                    Decimal('-53.2539217453901'),
-                    'BAIRRO 1',
-                    'CIDADE 1',
-                    '12345',
-                    1
-                ),
-                (
-                    dt(2017, 2, 2, 0, 0),
-                    None,
-                    None,
-                    None,
-                    Decimal('-22.8658255011035'),
-                    Decimal('-51.2539217453901'),
-                    'BAIRRO 2',
-                    'CIDADE 2',
-                    '67890',
-                    0.004872211615539773
-                )
-            ],
-            columns=[
-                'data_fato',
-                'cidade_latitude',
-                'cidade_longitude',
-                'cidade_nome',
-                'bairro_latitude',
-                'bairro_longitude',
-                'bairro_nome',
-                'cidade_bairro',
-                'id_sinalid',
-                'lat_long_score'
-            ]
-
-        )
-        pandas.testing.assert_frame_equal(score_df, expected_score_df)
-
-    def test_distance_using_city(self):
-        """When some rows has no neighborhood information
-        "Scenario  3:II -> use Bairro x Cidade information
-        "Scenario  3:III -> use Bairro x Bairro information"
-        """
-
-        self.all_persons_df.loc[0, ['cidade_latitude', 'cidade_longitude']]\
-            = [Decimal('-22.8658255011035'), Decimal('-70.2539217453901')]
-        self.all_persons_df.loc[0, 'cidade_nome'] = 'CIDADE 1'
-        self.all_persons_df.loc[0, 'cidade_bairro'] = None
-        self.all_persons_df.loc[0, 'bairro_nome'] = None
-        self.all_persons_df.loc[0, ['bairro_latitude', 'bairro_longitude']]\
-            = [None, None]
-
-        score_df = lat_long_score(self.target_df, self.all_persons_df)
-        expected_score_df = pandas.DataFrame(
-            [
-                (
-                    dt(2015, 2, 2, 0, 0),
-                    Decimal('-22.8658255011035'),
-                    Decimal('-70.2539217453901'),
-                    'CIDADE 1',
-                    None,
-                    None,
-                    None,
-                    None,
-                    '12345',
-                    0.000573516963808812
-                ),
-                (
-                    dt(2017, 2, 2, 0, 0),
-                    None,
-                    None,
-                    None,
-                    Decimal('-22.8658255011035'),
-                    Decimal('-51.2539217453901'),
-                    'BAIRRO 2',
-                    'CIDADE 2',
-                    '67890',
-                    0.004872211615539773
-                )
-            ],
-            columns=[
-                'data_fato',
-                'cidade_latitude',
-                'cidade_longitude',
-                'cidade_nome',
-                'bairro_latitude',
-                'bairro_longitude',
-                'bairro_nome',
-                'cidade_bairro',
-                'id_sinalid',
-                'lat_long_score'
-            ]
-
-        )
-        pandas.testing.assert_frame_equal(score_df, expected_score_df)
-
-    def test_distance_no_location_info(self):
-        """When some rows has no location info
-        "Scenario  3:IV -> Return 0 score"
-        "Scenario  3:III -> use Bairro x Bairro information"
-        """
-
-        self.all_persons_df.loc[0, ['cidade_latitude', 'cidade_longitude']]\
-            = [None, None]
-        self.all_persons_df.loc[0, 'cidade_nome'] = None
-        self.all_persons_df.loc[0, 'cidade_bairro'] = None
-        self.all_persons_df.loc[0, 'bairro_nome'] = None
-        self.all_persons_df.loc[0, ['bairro_latitude', 'bairro_longitude']]\
-            = [None, None]
-
-        score_df = lat_long_score(self.target_df, self.all_persons_df)
-        expected_score_df = pandas.DataFrame(
-            [
-                (
-                    dt(2015, 2, 2, 0, 0),
-                    None,
-                    None,
-                    None,
-                    None,
-                    None,
-                    None,
-                    None,
-                    '12345',
-                    0
-                ),
-                (
-                    dt(2017, 2, 2, 0, 0),
-                    None,
-                    None,
-                    None,
-                    Decimal('-22.8658255011035'),
-                    Decimal('-51.2539217453901'),
-                    'BAIRRO 2',
-                    'CIDADE 2',
-                    '67890',
-                    0.004872211615539773
-                )
-            ],
-            columns=[
-                'data_fato',
-                'cidade_latitude',
-                'cidade_longitude',
-                'cidade_nome',
-                'bairro_latitude',
-                'bairro_longitude',
-                'bairro_nome',
-                'cidade_bairro',
-                'id_sinalid',
-                'lat_long_score'
-            ]
-
-        )
-        pandas.testing.assert_frame_equal(score_df, expected_score_df)
-
-    def test_distance_target_has_no_bairro_info(self):
-        """When some target has no Bairro info
-        "Scenario  2:II -> Use Cidade x Cidade information
-        "Scenario  2:III -> use Cidade x Bairro Information
-        """
-        self.target_df.loc[['cidade_latitude', 'cidade_longitude']]\
-            = [Decimal('-22.8658255011035'), Decimal('-53.2539217453901')]
-        self.target_df['cidade_nome'] = 'CIDADE X'
-        self.target_df['cidade_bairro'] = None
-        self.target_df['bairro_nome'] = None
-        self.target_df[['bairro_latitude', 'bairro_longitude']]\
-            = [None, None]
-
-        self.all_persons_df.loc[0, ['cidade_latitude', 'cidade_longitude']]\
-            = [Decimal('-22.8658255011035'), Decimal('-70.2539217453901')]
-        self.all_persons_df.loc[0, 'cidade_nome'] = 'CIDADE 1'
-        self.all_persons_df.loc[0, 'cidade_bairro'] = None
-        self.all_persons_df.loc[0, 'bairro_nome'] = None
-        self.all_persons_df.loc[0, ['bairro_latitude', 'bairro_longitude']]\
-            = [None, None]
-
-        score_df = lat_long_score(self.target_df, self.all_persons_df)
-        expected_score_df = pandas.DataFrame(
-            [
-                (
-                    dt(2015, 2, 2, 0, 0),
-                    Decimal('-22.8658255011035'),
-                    Decimal('-70.2539217453901'),
-                    'CIDADE 1',
-                    None,
-                    None,
-                    None,
-                    None,
-                    '12345',
-                    0.000573516963808812
-                ),
-                (
-                    dt(2017, 2, 2, 0, 0),
-                    None,
-                    None,
-                    None,
-                    Decimal('-22.8658255011035'),
-                    Decimal('-51.2539217453901'),
-                    'BAIRRO 2',
-                    'CIDADE 2',
-                    '67890',
-                    0.004872211615539773
-                )
-            ],
-            columns=[
-                'data_fato',
-                'cidade_latitude',
-                'cidade_longitude',
-                'cidade_nome',
-                'bairro_latitude',
-                'bairro_longitude',
-                'bairro_nome',
-                'cidade_bairro',
-                'id_sinalid',
-                'lat_long_score'
-            ]
-
-        )
-        pandas.testing.assert_frame_equal(score_df, expected_score_df)
+        pandas.testing.assert_frame_equal(score_df, expected)
