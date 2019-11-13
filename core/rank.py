@@ -6,6 +6,7 @@ from geopy.distance import distance
 
 
 def lat_long_score(target_df, all_persons_df):
+    # Maybe give a higher score for neighborhood proximity
     def score(coord_neigh, coord_city, row):
         row_coord_neigh = (row['bairro_latitude'], row['bairro_longitude'])
         row_coord_city = (row['cidade_latitude'], row['cidade_longitude'])
@@ -50,3 +51,14 @@ def date_score(target_df, all_persons_df):
         lambda x: score(target_df['data_fato'], x)
     )
     return dt_score_df
+
+
+def final_score(all_persons_df):
+    scores = [
+        'lat_long_score',
+        'date_score'
+    ]
+    final_score_df = all_persons_df.copy()
+    final_score_df['final_score'] = final_score_df[scores].sum(axis=1)
+    return final_score_df.sort_values(
+        'final_score', ascending=False).reset_index(drop=True)

@@ -4,7 +4,7 @@ from unittest import TestCase
 
 import pandas
 
-from core.rank import lat_long_score, date_score
+from core.rank import lat_long_score, date_score, final_score
 
 
 class LatLongScore(TestCase):
@@ -580,3 +580,41 @@ class FactDate(TestCase):
         expected.loc[1, 'date_score'] = 0.0
 
         pandas.testing.assert_frame_equal(score_df, expected)
+
+
+class FinalScore(TestCase):
+    def test_calculate_final_score(self):
+        all_person_data = [
+            (
+                0.1,
+                0.2,
+                '12345'
+            ),
+            (
+                0.5,
+                0.6,
+                '67890'
+            )
+        ]
+        all_persons_df = pandas.DataFrame(
+            all_person_data,
+            columns=[
+                'lat_long_score',
+                'date_score',
+                'id_sinalid'
+            ]
+        )
+
+        score_df = final_score(all_persons_df)
+
+        expected = all_persons_df.copy()
+
+        expected.loc[0, 'final_score'] = 0.3
+        expected.loc[1, 'final_score'] = 1.1
+
+        pandas.testing.assert_frame_equal(
+            score_df,
+            expected.sort_values('final_score', ascending=False).reset_index(
+                drop=True
+            )
+        )
