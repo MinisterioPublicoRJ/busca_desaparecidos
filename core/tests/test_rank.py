@@ -86,3 +86,71 @@ class LatLongScore(TestCase):
         expected.loc[1, 'lat_long_score'] = 0.0013921806850195795
 
         pandas.testing.assert_frame_equal(score_df, expected)
+
+    def test_target_has_bairro_one_row_has_not_bairro(self):
+        target_data = (
+            dt(2017, 2, 2, 0, 0),
+            Decimal('-22.8658255011035'),
+            Decimal('-53.2539217453901'),
+            'BAIRRO',
+            Decimal('-22.9232212815581'),
+            Decimal('-43.4509333229307'),
+            'CIDADE',
+            '12345'
+        )
+        target_df = pandas.Series(
+            target_data,
+            index=[
+                'data_fato',
+                'bairro_latitude',
+                'bairro_longitude',
+                'bairro_nome',
+                'cidade_latitude',
+                'cidade_longitude',
+                'cidade_nome',
+                'id_sinalid'
+            ]
+        )
+        all_person_data = [
+            (
+                dt(2017, 2, 2, 0, 0),
+                None,
+                None,
+                None,
+                Decimal('-22.9232212815581'),
+                Decimal('-50.4509333229307'),
+                'CIDADE 1',
+                '12345'
+            ),
+            (
+                dt(2017, 2, 2, 0, 0),
+                Decimal('-22.8658255011035'),
+                Decimal('-60.2539217453901'),
+                'BAIRRO 2',
+                Decimal('-22.9232212815581'),
+                Decimal('-60.4509333229307'),
+                'CIDADE 2',
+                '67890'
+            )
+        ]
+        all_persons_df = pandas.DataFrame(
+            all_person_data,
+            columns=[
+                'data_fato',
+                'bairro_latitude',
+                'bairro_longitude',
+                'bairro_nome',
+                'cidade_latitude',
+                'cidade_longitude',
+                'cidade_nome',
+                'id_sinalid'
+            ]
+        )
+
+        score_df = lat_long_score(target_df, all_persons_df)
+
+        expected = all_persons_df.copy()
+        expected.loc[0, 'lat_long_score'] = 0.0013927670310238409
+        expected.loc[1, 'lat_long_score'] = 0.0013921806850195795
+
+        pandas.testing.assert_frame_equal(score_df, expected)
