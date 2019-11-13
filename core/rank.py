@@ -11,6 +11,8 @@ def lat_long_score(target_df, all_persons_df):
             dist = distance(coord_neigh, row_coord_neigh).kilometers
         elif all(coord_city) and all(row_coord_city):
             dist = distance(coord_city, row_coord_city).kilometers
+        else:
+            return 0.0
 
         try:
             return 1 / dist
