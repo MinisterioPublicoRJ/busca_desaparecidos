@@ -38,7 +38,10 @@ def lat_long_score(target_df, all_persons_df):
 def date_score(target_df, all_persons_df):
     def score(target_dt, row_dt):
         if target_dt is not None and not pandas.isnull(row_dt):
-            return 1 / abs((target_dt - row_dt).days)
+            try:
+                return 1 / abs((target_dt - row_dt).days)
+            except ZeroDivisionError:
+                return 1.0
 
         return 0.0
 
