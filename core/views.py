@@ -1,10 +1,17 @@
 from django.contrib import messages
-from django.shortcuts import redirect
+from django.shortcuts import redirect, render
+from django.template.loader import render_to_string
 from django.views.generic import FormView, TemplateView
-
+from django.http import StreamingHttpResponse
 from core.dao import client, search_target_person, all_persons
 from core.forms import SearchForm
 from core.rank import calculate_scores, final_score
+
+
+from threading import Thread
+import time
+
+resultado = None
 
 
 def _prepare_results(result, n_results=10):
@@ -24,12 +31,32 @@ class HomeView(FormView):
     template_name = 'core/home.html'
 
 
+
+def _ranking(target_person, all_persons_df):
+    global resultado
+    score_df = calculate_scores(target_person, all_persons_df)
+    resultado = final_score(score_df)
+
+
 class SearchView(TemplateView):
     template_name = 'core/search.html'
 
-    def _ranking(self, target_person, all_persons_df):
-        score_df = calculate_scores(target_person, all_persons_df)
-        return final_score(score_df)
+
+    def iterador(self, request, context, target_person, all_persons):
+        p = Thread(target=_ranking, args=(target_person, all_persons))
+        p.start()
+        while resultado is None:
+            # TODO: test if the router accepts empty response indefinitely
+            # yield ''
+            yield ' '
+            time.sleep(1)
+
+        context['results'] = _prepare_results(resultado)
+        context['person_attrs'] = _prepare_person_attrs(target_person)
+        yield render_to_string(
+            self.template_name,
+            context
+        )
 
     def get(self, request, *args, **kwargs):
         form = SearchForm(request.GET)
@@ -47,10 +74,13 @@ class SearchView(TemplateView):
 
             all_persons_df = all_persons(cursor)
 
-            final_score_df = self._ranking(target_person, all_persons_df)
-            context['results'] = _prepare_results(final_score_df)
-            context['person_attrs'] = _prepare_person_attrs(target_person)
-
-            return self.render_to_response(context)
+            return StreamingHttpResponse(
+                self.iterador(
+                    request,
+                    context,
+                    target_person,
+                    all_persons_df
+                )
+            )
 
         return redirect('core:home')
