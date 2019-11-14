@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django.shortcuts import redirect
 from django.views.generic import FormView, TemplateView
 
@@ -35,9 +36,15 @@ class SearchView(TemplateView):
         context = {'form': SearchForm}
         if form.is_valid():
             search_id = form.cleaned_data['search_id']
-
             cursor = client()
             target_person = search_target_person(cursor, search_id)
+            if target_person is None:
+                messages.error(
+                    request,
+                    'Identificador Sinalid não encontrado'
+                )
+                return self.render_to_response(context)
+
             all_persons_df = all_persons(cursor)
 
             final_score_df = self._ranking(target_person, all_persons_df)

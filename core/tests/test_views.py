@@ -129,3 +129,18 @@ class ViewsTest(TestCase):
             resp.context['results'],
             list(final_score_df.itertuples(index=False))
         )
+
+    @mock.patch('core.views.search_target_person')
+    def test_missing_not_found(self, _search):
+        _search.return_value = None
+
+        url = reverse('core:search') + '?search_id=nonexistent'
+
+        resp = self.client.get(url)
+
+        self.assertEqual(resp.status_code, 200)
+        self.assertIn(
+            'Identificador Sinalid não encontrado',
+            resp.content.decode()
+        )
+        self.assertIn('form', resp.context)
