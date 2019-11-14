@@ -55,10 +55,18 @@
                                                 {{ person_attrs.data_fato|date:"d/m/Y"}}
                                             {% endif %}
                                             </dd>
-                                            <dt>Bairo</dt>
-                                            <dd>{{ person_attrs.bairro_nome | default_if_none:"—" }}</dd>
+                                            <dt>Bairo:</dt>
+                                            {% if person_attrs.bairro_latitude is not None and person_attrs.bairro_longitude is not None %}
+                                            <dd><a target="_blank" href="https://www.google.com/maps/search/?api=1&query={{person_attrs.bairro_latitude}},{{person_attrs.bairro_longitude}}">{{ person_attrs.bairro_nome}}</a></dd>
+                                            {% else %}
+                                                <dd>{{ person_attrs.bairro_nome | default_if_none:"—" }}</dd>
+                                            {% endif %}
                                             <dt>Cidade:</dt>
-                                            <dd>{{ person_attrs.cidade_nome | default_if_none:"—" }}</dd>
+                                            {% if person_attrs.cidade_latitude is not None and person_attrs.cidade_longitude is not None %}
+                                            <dd><a target="_blank" href="https://www.google.com/maps/search/?api=1&query={{person_attrs.cidade_latitude}},{{person_attrs.cidade_longitude}}">{{ person_attrs.cidade_nome}}</a></dd>
+                                            {% else %}
+                                                <dd>{{ person_attrs.cidade_nome | default_if_none:"—" }}</dd>
+                                            {% endif %}
                                         </dl>
                                     </div>
                                 </div>
@@ -88,8 +96,26 @@
                                             <tr>
                                                 <td><a href='search?search_id={{row.id_sinalid}}'>{{row.id_sinalid}}</a></td>
                                                 <td>{{row.data_fato|date:"d/m/Y"}}</td>
-                                                <td>{{row.bairro_nome | default_if_none:"—"}}</td>
-                                                <td>{{row.cidade_nome | default_if_none:"—"}}</td>
+                                                <td>
+                                                    {% if row.bairro_latitude is not None and row.bairro_longitude is not None %}
+                                                        {% if person_attrs.bairro_latitude is not None and person_attrs.bairro_longitude is not None %}
+                                                            <a target="_blank" href="https://www.google.com/maps/dir/{{row.bairro_latitude}},{{row.bairro_longitude}}/{{person_attrs.bairro_latitude}},{{person_attrs.bairro_longitude}}">{{row.bairro_nome | default_if_none:"—"}}</a></td>
+                                                        {% else %}
+                                                            <a target="_blank" href="https://www.google.com/maps/search/?api=1&query={{row.bairro_latitude}},{{row.bairro_longitude}}">{{row.bairro_nome | default_if_none:"—"}}</a></td>
+                                                        {% endif %}
+                                                    {% else %}
+                                                        {{row.bairro_nome | default_if_none:"—"}}
+                                                    {% endif %}
+                                                <td>
+                                                    {% if row.cidade_latitude is not None and row.cidade_longitude is not None %}
+                                                        {% if person_attrs.cidade_latitude is not None and person_attrs.cidade_longitude is not None %}
+                                                            <a target="_blank" href="https://www.google.com/maps/dir/{{row.cidade_latitude}},{{row.cidade_longitude}}/{{person_attrs.cidade_latitude}},{{person_attrs.cidade_longitude}}">{{row.cidade_nome | default_if_none:"—"}}</a></td>
+                                                        {% else %}
+                                                            <a target="_blank" href="https://www.google.com/maps/search/?api=1&query={{row.cidade_latitude}},{{row.cidade_longitude}}">{{row.cidade_nome | default_if_none:"—"}}</a></td>
+                                                        {% endif %}
+                                                    {% else %}
+                                                        {{row.cidade_nome | default_if_none:"—"}}
+                                                    {% endif %}
                                                 <td>
                                                     {% if row.lat_long_score is None %}
                                                         —
