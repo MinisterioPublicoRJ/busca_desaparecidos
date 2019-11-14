@@ -3,11 +3,7 @@ import pandas
 
 from decouple import config
 
-
-QUERY_SINGLE_MISSING = config('QUERY_SINGLE_MISSING')
-QUERY_ALL_MISSING = config('QUERY_ALL_MISSING')
-QUERY_SINGLE_LOCALIZED = config('QUERY_SINGLE_LOCALIZED')
-QUERY_ALL_LOCALIZED = config('QUERY_ALL_LOCALIZED')
+from core.queries import QUERY_SINGLE_TARGET, QUERY_ALL_PERSONS
 
 
 def client():
@@ -20,8 +16,8 @@ def client():
     return cursor
 
 
-def search_single_missing(cursor, search_id):
-    result = cursor.execute(QUERY_SINGLE_MISSING.format(id=search_id))
+def search_target_person(cursor, id_sinalid):
+    result = cursor.execute(QUERY_SINGLE_TARGET.format(id=id_sinalid))
     try:
         person = next(result)
     except StopIteration:
@@ -30,56 +26,31 @@ def search_single_missing(cursor, search_id):
     return pandas.Series(
         person,
         index=[
-            'nome',
-            'identificador_sinalid',
-            'cpf',
-            'rg',
-            'sexo',
-            'dt_nasc',
-            'biotipo',
-            'altura',
-            'cor_cabelo',
-            'cor_olho',
-            'cor_pele',
-            'caracteristica',
-            'parte_corpo',
-            'desc_caracteristica'
+            'data_fato',
+            'bairro_latitude',
+            'bairro_longitude',
+            'bairro_nome',
+            'cidade_latitude',
+            'cidade_longitude',
+            'cidade_nome',
+            'id_sinalid'
         ]
     )
 
 
-def search_all_missing(cursor):
-    return cursor.execute(QUERY_ALL_MISSING)
-
-
-def search_single_localized(cursor, search_id):
-    result = cursor.execute(QUERY_SINGLE_LOCALIZED.format(id=search_id))
-    try:
-        person = next(result)
-    except StopIteration:
-        return None
-
-    return pandas.Series(
-        person,
-        index=[
-            'id',
-            'identificador_sinalid',
-            'nome',
-            'cpf',
-            'rg',
-            'sexo',
-            'dt_nasc',
-            'biotipo',
-            'altura',
-            'cor_cabelo',
-            'cor_olho',
-            'cor_pele',
-            'caracteristica',
-            'parte_corpo',
-            'desc_caracteristica',
+def all_persons(cursor):
+    result = cursor.execute(QUERY_ALL_PERSONS)
+    return pandas.DataFrame(
+        result,
+        columns=[
+            'data_fato',
+            'bairro_latitude',
+            'bairro_longitude',
+            'bairro_nome',
+            'cidade_latitude',
+            'cidade_longitude',
+            'cidade_nome',
+            'id_sinalid'
         ]
+
     )
-
-
-def search_all_localized(cursor):
-    return cursor.execute(QUERY_ALL_LOCALIZED)

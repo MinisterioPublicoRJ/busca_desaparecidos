@@ -2,12 +2,13 @@ from django.contrib import messages
 from django.shortcuts import redirect
 from django.views.generic import FormView, TemplateView
 
-from .rank import localized_rank, missing_rank, search_type
-from .forms import SearchForm
+from core.dao import client, search_target_person, all_persons
+from core.forms import SearchForm
+from core.rank import calculate_scores, final_score
 
 
-def _prepare_result(result, n_results=10):
-    return result.head(n_results).itertuples(index=False)
+def _prepare_results(result, n_results=10):
+    return list(result.head(n_results).itertuples(index=False))
 
 
 def _prepare_person_attrs(person):
@@ -26,31 +27,30 @@ class HomeView(FormView):
 class SearchView(TemplateView):
     template_name = 'core/search.html'
 
+    def _ranking(self, target_person, all_persons_df):
+        score_df = calculate_scores(target_person, all_persons_df)
+        return final_score(score_df)
+
     def get(self, request, *args, **kwargs):
         form = SearchForm(request.GET)
-        context = {'form': SearchForm()}
+        context = {'form': SearchForm}
         if form.is_valid():
-            cleaned_data = form.cleaned_data
-            search_id = cleaned_data['search_id']
-            _type = search_type(search_id)
-            if _type == 1:
-                person, result = localized_rank(search_id)
-            else:
-                person, result = missing_rank(search_id)
-
-            if person is None:
-                messages.add_message(
+            search_id = form.cleaned_data['search_id']
+            cursor = client()
+            target_person = search_target_person(cursor, search_id)
+            if target_person is None:
+                messages.error(
                     request,
-                    messages.ERROR,
                     'Identificador Sinalid não encontrado'
                 )
                 return self.render_to_response(context)
-            else:
-                context['result'] = _prepare_result(result)
-                context['person_attrs'] = _prepare_person_attrs(person)
-                context['column_names'] = _columns(result)
-                context['search_type'] = _type
-                return self.render_to_response(context)
 
-        else:
-            return redirect('core:home')
+            all_persons_df = all_persons(cursor)
+
+            final_score_df = self._ranking(target_person, all_persons_df)
+            context['results'] = _prepare_results(final_score_df)
+            context['person_attrs'] = _prepare_person_attrs(target_person)
+
+            return self.render_to_response(context)
+
+        return redirect('core:home')
