@@ -433,63 +433,6 @@ class LatLongScore(TestCase):
 
         pandas.testing.assert_frame_equal(score_df, expected)
 
-    def test_distance_smaller_than_1_kilometer(self):
-        target_data = (
-            dt(2017, 2, 2, 0, 0),
-            Decimal('-22.8196976'),
-            Decimal('-43.2943395'),
-            'BAIRRO',
-            Decimal('-22.9232212815581'),
-            Decimal('-43.4509333229307'),
-            'CIDADE',
-            '12345'
-        )
-        target_df = pandas.Series(
-            target_data,
-            index=[
-                'data_fato',
-                'bairro_latitude',
-                'bairro_longitude',
-                'bairro_nome',
-                'cidade_latitude',
-                'cidade_longitude',
-                'cidade_nome',
-                'id_sinalid'
-            ]
-        )
-        all_person_data = [
-            (
-                dt(2017, 2, 2, 0, 0),
-                Decimal('-22.8188850956735'),
-                Decimal('-43.2924417827383'),
-                'BAIRRO 1',
-                Decimal('-22.9232212815581'),
-                Decimal('-50.4509333229307'),
-                'CIDADE 1',
-                '12345'
-            ),
-        ]
-        all_persons_df = pandas.DataFrame(
-            all_person_data,
-            columns=[
-                'data_fato',
-                'bairro_latitude',
-                'bairro_longitude',
-                'bairro_nome',
-                'cidade_latitude',
-                'cidade_longitude',
-                'cidade_nome',
-                'id_sinalid'
-            ]
-        )
-
-        score_df = lat_long_score(target_df, all_persons_df)
-
-        expected = all_persons_df.copy()
-        expected.loc[0, 'lat_long_score'] = 0.004660011343460373
-
-        pandas.testing.assert_frame_equal(score_df, expected)
-
 
 class FactDate(TestCase):
     def test_fact_date_score(self):
