@@ -155,7 +155,7 @@ class LatLongScore(TestCase):
         score_df = lat_long_score(target_df, all_persons_df)
 
         expected = all_persons_df.copy()
-        expected.loc[0, 'lat_long_score'] = 0.0013927670310238409
+        expected.loc[0, 'lat_long_score'] = 0.003476348586579899
         expected.loc[1, 'lat_long_score'] = 0.0013921806850195795
 
         pandas.testing.assert_frame_equal(score_df, expected)
@@ -224,7 +224,7 @@ class LatLongScore(TestCase):
 
         expected = all_persons_df.copy()
         expected.loc[0, 'lat_long_score'] = 0.0008864297302744507
-        expected.loc[1, 'lat_long_score'] = 0.0005134364231796427
+        expected.loc[1, 'lat_long_score'] = 0.0004689015477317984
 
         pandas.testing.assert_frame_equal(score_df, expected)
 
@@ -360,7 +360,7 @@ class LatLongScore(TestCase):
 
         expected = all_persons_df.copy()
         expected.loc[0, 'lat_long_score'] = 0.0
-        expected.loc[1, 'lat_long_score'] = 0.0005134364231796427
+        expected.loc[1, 'lat_long_score'] = 0.0004689015477317984
 
         pandas.testing.assert_frame_equal(score_df, expected)
 

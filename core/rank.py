@@ -10,12 +10,21 @@ def lat_long_score(target_df, all_persons_df):
     def score(coord_neigh, coord_city, row):
         row_coord_neigh = (row['bairro_latitude'], row['bairro_longitude'])
         row_coord_city = (row['cidade_latitude'], row['cidade_longitude'])
-        if all(coord_neigh) and all(row_coord_neigh):
-            dist = distance(coord_neigh, row_coord_neigh).kilometers
-        elif all(coord_city) and all(row_coord_city):
-            dist = distance(coord_city, row_coord_city).kilometers
+        if all(coord_neigh):
+            coord_1 = coord_neigh
+        elif all(coord_city):
+            coord_1 = coord_city
         else:
             return 0.0
+
+        if all(row_coord_neigh):
+            coord_2 = row_coord_neigh
+        elif all(row_coord_city):
+            coord_2 = row_coord_city
+        else:
+            return 0.0
+
+        dist = distance(coord_1, coord_2).kilometers
 
         try:
             return 1 / dist
