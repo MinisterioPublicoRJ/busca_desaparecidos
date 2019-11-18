@@ -24,11 +24,12 @@ class ViewsTest(TestCase):
 
         self.assertEqual(resp.status_code, 302)
 
+    @mock.patch('core.views._prepare_person_attrs')
     @mock.patch('core.views.all_persons')
     @mock.patch('core.views.search_target_person')
     @mock.patch('core.views.client')
     def test_search_and_calculate_score(
-            self, _client, _search, _all_persons):
+            self, _client, _search, _all_persons, _prepare_person_attrs):
 
         target_data = (
             dt(2017, 2, 2, 0, 0),
@@ -106,29 +107,11 @@ class ViewsTest(TestCase):
         url = reverse('core:search') + '?search_id=12345'
 
         resp = self.client.get(url)
-        expected_person_attrs = {
-            'data_fato': dt(2017, 2, 2, 0, 0),
-            'bairro_latitude': Decimal('-22.8658255011035'),
-            'bairro_longitude': Decimal('-53.2539217453901'),
-            'bairro_nome': 'BAIRRO',
-            'cidade_latitude': Decimal('-22.9232212815581'),
-            'cidade_longitude': Decimal('-43.4509333229307'),
-            'cidade_nome': 'CIDADE',
-            'id_sinalid': '12345'
-        }
 
         _client.assert_called_once_with()
         _search.assert_called_once_with(cursor_mock, '12345')
         _all_persons.assert_called_once_with(cursor_mock)
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual(
-            resp.context['person_attrs'],
-            expected_person_attrs
-        )
-        self.assertEqual(
-            resp.context['results'],
-            list(final_score_df.itertuples(index=False))
-        )
 
     @mock.patch('core.views.search_target_person')
     def test_missing_not_found(self, _search):
