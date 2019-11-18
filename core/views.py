@@ -1,5 +1,5 @@
 from django.contrib import messages
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect
 from django.template.loader import render_to_string
 from django.views.generic import FormView, TemplateView
 from django.http import StreamingHttpResponse
@@ -31,7 +31,6 @@ class HomeView(FormView):
     template_name = 'core/home.html'
 
 
-
 def _ranking(target_person, all_persons_df):
     global resultado
     score_df = calculate_scores(target_person, all_persons_df)
@@ -40,7 +39,6 @@ def _ranking(target_person, all_persons_df):
 
 class SearchView(TemplateView):
     template_name = 'core/search.html'
-
 
     def iterador(self, request, context, target_person, all_persons):
         p = Thread(target=_ranking, args=(target_person, all_persons))

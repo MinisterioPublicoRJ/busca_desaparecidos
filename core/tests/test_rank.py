@@ -2,6 +2,7 @@ from datetime import datetime as dt
 from decimal import Decimal
 from unittest import TestCase, mock
 
+import numpy as np
 import pandas
 
 from core.rank import (
@@ -87,8 +88,8 @@ class LatLongScore(TestCase):
         score_df = lat_long_score(target_df, all_persons_df)
 
         expected = all_persons_df.copy()
-        expected.loc[0, 'lat_long_score'] = 0.0032481722119593265
-        expected.loc[1, 'lat_long_score'] = 0.0013921806850195795
+        expected.loc[0, 'lat_long_score'] = 307865.45008855645
+        expected.loc[1, 'lat_long_score'] = 718297.5678088337
 
         pandas.testing.assert_frame_equal(score_df, expected)
 
@@ -155,8 +156,8 @@ class LatLongScore(TestCase):
         score_df = lat_long_score(target_df, all_persons_df)
 
         expected = all_persons_df.copy()
-        expected.loc[0, 'lat_long_score'] = 0.003476348586579899
-        expected.loc[1, 'lat_long_score'] = 0.0013921806850195795
+        expected.loc[0, 'lat_long_score'] = 287658.1490879256
+        expected.loc[1, 'lat_long_score'] = 718297.5678088337
 
         pandas.testing.assert_frame_equal(score_df, expected)
 
@@ -223,8 +224,8 @@ class LatLongScore(TestCase):
         score_df = lat_long_score(target_df, all_persons_df)
 
         expected = all_persons_df.copy()
-        expected.loc[0, 'lat_long_score'] = 0.0008864297302744507
-        expected.loc[1, 'lat_long_score'] = 0.0004689015477317984
+        expected.loc[0, 'lat_long_score'] = 1128121.0070542044
+        expected.loc[1, 'lat_long_score'] = 2132643.8456799006
 
         pandas.testing.assert_frame_equal(score_df, expected)
 
@@ -359,8 +360,8 @@ class LatLongScore(TestCase):
         score_df = lat_long_score(target_df, all_persons_df)
 
         expected = all_persons_df.copy()
-        expected.loc[0, 'lat_long_score'] = 0.0
-        expected.loc[1, 'lat_long_score'] = 0.0004689015477317984
+        expected.loc[0, 'lat_long_score'] = np.inf
+        expected.loc[1, 'lat_long_score'] = 2132643.8456799006
 
         pandas.testing.assert_frame_equal(score_df, expected)
 
@@ -427,8 +428,65 @@ class LatLongScore(TestCase):
         score_df = lat_long_score(target_df, all_persons_df)
 
         expected = all_persons_df.copy()
-        expected.loc[0, 'lat_long_score'] = 1
-        expected.loc[1, 'lat_long_score'] = 0.0013921806850195795
+        expected.loc[0, 'lat_long_score'] = 0.0
+        expected.loc[1, 'lat_long_score'] = 718297.5678088337
+
+        pandas.testing.assert_frame_equal(score_df, expected)
+
+    def test_distance_smaller_than_1_kilometer(self):
+        target_data = (
+            dt(2017, 2, 2, 0, 0),
+            Decimal('-22.8196976'),
+            Decimal('-43.2943395'),
+            'BAIRRO',
+            Decimal('-22.9232212815581'),
+            Decimal('-43.4509333229307'),
+            'CIDADE',
+            '12345'
+        )
+        target_df = pandas.Series(
+            target_data,
+            index=[
+                'data_fato',
+                'bairro_latitude',
+                'bairro_longitude',
+                'bairro_nome',
+                'cidade_latitude',
+                'cidade_longitude',
+                'cidade_nome',
+                'id_sinalid'
+            ]
+        )
+        all_person_data = [
+            (
+                dt(2017, 2, 2, 0, 0),
+                Decimal('-22.8188850956735'),
+                Decimal('-43.2924417827383'),
+                'BAIRRO 1',
+                Decimal('-22.9232212815581'),
+                Decimal('-50.4509333229307'),
+                'CIDADE 1',
+                '12345'
+            ),
+        ]
+        all_persons_df = pandas.DataFrame(
+            all_person_data,
+            columns=[
+                'data_fato',
+                'bairro_latitude',
+                'bairro_longitude',
+                'bairro_nome',
+                'cidade_latitude',
+                'cidade_longitude',
+                'cidade_nome',
+                'id_sinalid'
+            ]
+        )
+
+        score_df = lat_long_score(target_df, all_persons_df)
+
+        expected = all_persons_df.copy()
+        expected.loc[0, 'lat_long_score'] = 0.004660011343460373
 
         pandas.testing.assert_frame_equal(score_df, expected)
 

@@ -1,5 +1,6 @@
 from functools import partial
 
+import numpy as np
 import pandas
 
 from geopy.distance import distance
@@ -22,12 +23,12 @@ def lat_long_score(target_df, all_persons_df):
         elif all(row_coord_city):
             coord_2 = row_coord_city
         else:
-            return 0.0
+            return np.inf
 
-        dist = distance(coord_1, coord_2).kilometers
+        dist = distance(coord_1, coord_2).meters
 
         try:
-            return 1 / dist
+            return dist
         except ZeroDivisionError:
             return 1
 
