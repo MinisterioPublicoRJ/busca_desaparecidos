@@ -50,11 +50,11 @@ def date_score(target_df, all_persons_df):
     def score(target_dt, row_dt):
         if target_dt is not None and not pandas.isnull(row_dt):
             try:
-                return 1 / abs((target_dt - row_dt).days)
+                return abs((target_dt - row_dt).days)
             except ZeroDivisionError:
-                return 1.1
+                return 0.6
 
-        return 0.0
+        return np.inf
 
     dt_score_df = all_persons_df.copy()
     dt_score_df['date_score'] = dt_score_df.data_fato.map(

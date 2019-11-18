@@ -468,8 +468,9 @@ class FactDate(TestCase):
         score_df = date_score(target_df, all_persons_df)
 
         expected = all_persons_df.copy()
-        expected.loc[0, 'date_score'] = 0.0027397260273972603
-        expected.loc[1, 'date_score'] = 0.0033112582781456954
+        expected.loc[0, 'date_score'] = 365
+        expected.loc[1, 'date_score'] = 302
+        expected['date_score'] = expected.date_score.astype(int)
 
         pandas.testing.assert_frame_equal(score_df, expected)
 
@@ -506,8 +507,8 @@ class FactDate(TestCase):
         score_df = date_score(target_df, all_persons_df)
 
         expected = all_persons_df.copy()
-        expected.loc[0, 'date_score'] = 0.0
-        expected.loc[1, 'date_score'] = 0.0
+        expected.loc[0, 'date_score'] = np.inf
+        expected.loc[1, 'date_score'] = np.inf
 
         pandas.testing.assert_frame_equal(score_df, expected)
 
@@ -544,8 +545,8 @@ class FactDate(TestCase):
         score_df = date_score(target_df, all_persons_df)
 
         expected = all_persons_df.copy()
-        expected.loc[0, 'date_score'] = 0.0027397260273972603
-        expected.loc[1, 'date_score'] = 0.0
+        expected.loc[0, 'date_score'] = 365
+        expected.loc[1, 'date_score'] = np.inf
 
         pandas.testing.assert_frame_equal(score_df, expected)
 
@@ -582,8 +583,8 @@ class FactDate(TestCase):
         score_df = date_score(target_df, all_persons_df)
 
         expected = all_persons_df.copy()
-        expected.loc[0, 'date_score'] = 1.1
-        expected.loc[1, 'date_score'] = 0.0
+        expected.loc[0, 'date_score'] = 0.0
+        expected.loc[1, 'date_score'] = np.inf
 
         pandas.testing.assert_frame_equal(score_df, expected)
 
