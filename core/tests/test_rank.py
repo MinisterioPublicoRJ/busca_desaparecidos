@@ -633,7 +633,7 @@ class FinalScore(TestCase):
 
         pandas.testing.assert_frame_equal(
             score_df,
-            expected.sort_values('final_score', ascending=False).reset_index(
+            expected.sort_values('final_score', ascending=True).reset_index(
                 drop=True
             )
         )

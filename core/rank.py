@@ -84,4 +84,4 @@ def final_score(all_persons_df):
     final_score_df = all_persons_df.copy()
     final_score_df['final_score'] = final_score_df[scores].sum(axis=1)
     return final_score_df.sort_values(
-        'final_score', ascending=False).reset_index(drop=True)
+        'final_score', ascending=True).reset_index(drop=True)
