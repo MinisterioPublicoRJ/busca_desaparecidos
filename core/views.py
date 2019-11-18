@@ -11,8 +11,6 @@ from core.rank import calculate_scores, final_score
 from threading import Thread
 import time
 
-resultado = None
-
 
 def _prepare_results(result, n_results=10):
     return list(result.head(n_results).itertuples(index=False))
@@ -31,26 +29,27 @@ class HomeView(FormView):
     template_name = 'core/home.html'
 
 
-def _ranking(target_person, all_persons_df):
-    global resultado
+def _ranking(self, target_person, all_persons_df):
     score_df = calculate_scores(target_person, all_persons_df)
-    resultado = final_score(score_df)
+    self.resultado = final_score(score_df)
 
 
 class SearchView(TemplateView):
     template_name = 'core/search.html'
 
     def iterador(self, request, context, target_person, all_persons):
-        p = Thread(target=_ranking, args=(target_person, all_persons))
+        self.resultado = None
+        p = Thread(target=_ranking, args=(self, target_person, all_persons))
         p.start()
-        while resultado is None:
+        while self.resultado is None:
             # TODO: test if the router accepts empty response indefinitely
             # yield ''
             yield ' '
             time.sleep(1)
 
-        context['results'] = _prepare_results(resultado)
+        context['results'] = _prepare_results(self.resultado)
         context['person_attrs'] = _prepare_person_attrs(target_person)
+        p.join()
         yield render_to_string(
             self.template_name,
             context
