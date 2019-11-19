@@ -1,4 +1,5 @@
 import cx_Oracle
+import numpy as np
 import pandas
 
 from decouple import config
@@ -101,5 +102,8 @@ def apparent_age(age_or_row):
     else:
         age = age_or_row
 
-    if age is not None:
-        return pandas.Series(AGE_MAPPER[age])
+    if not pandas.isnull(age):
+        return pandas.Series(AGE_MAPPER[age])\
+            if age in AGE_MAPPER else (None, np.nan)
+
+    return None, np.nan
