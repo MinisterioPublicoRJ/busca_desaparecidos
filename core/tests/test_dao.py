@@ -182,3 +182,66 @@ class PreProcess(TestCase):
         expected_df['indice_idade_aparente'] = 17
 
         pandas.testing.assert_series_equal(person_series, expected_df)
+
+    def test_calculate_apparent_age_in_data_frame(self):
+        data = [
+            (
+                dt(1941, 4, 27, 0, 0),
+                78,
+                None,
+                dt(2017, 2, 2, 0, 0),
+                Decimal('-22.8658255011035'),
+                Decimal('-43.2539217453901'),
+                'BAIRRO',
+                None,
+                None,
+                Decimal('-22.9232212815581'),
+                Decimal('-43.4509333229307'),
+                'CIDADE',
+                '12345'
+            ),
+            (
+                dt(1996, 4, 27, 0, 0),
+                23,
+                None,
+                dt(2017, 2, 2, 0, 0),
+                Decimal('-22.8658255011035'),
+                Decimal('-43.2539217453901'),
+                'BAIRRO',
+                None,
+                None,
+                Decimal('-22.9232212815581'),
+                Decimal('-43.4509333229307'),
+                'CIDADE',
+                '12345'
+            ),
+        ]
+        data_frame = pandas.DataFrame(
+            data,
+            columns=[
+                'data_nascimento',
+                'idade',
+                'foto',
+                'data_fato',
+                'bairro_latitude',
+                'bairro_longitude',
+                'bairro_nome',
+                'idade_aparente',
+                'indice_idade_aparente',
+                'cidade_latitude',
+                'cidade_longitude',
+                'cidade_nome',
+                'id_sinalid'
+            ]
+        )
+        expected_df = data_frame.copy()
+
+        data_frame[['idade_aparente', 'indice_idade_aparente']]\
+            = data_frame.apply(apparent_age, axis=1, raw=True)
+
+        expected_df.loc[0, ['idade_aparente', 'indice_idade_aparente']]\
+            = ('76-80', 17)
+        expected_df.loc[1, ['idade_aparente', 'indice_idade_aparente']]\
+            = ('22-25', 6)
+
+        pandas.testing.assert_frame_equal(data_frame, expected_df)

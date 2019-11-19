@@ -95,6 +95,11 @@ def all_persons(cursor):
     )
 
 
-def apparent_age(age):
+def apparent_age(age_or_row):
+    if isinstance(age_or_row, pandas.Series):
+        age = age_or_row.idade
+    else:
+        age = age_or_row
+
     if age is not None:
-        return AGE_MAPPER[age]
+        return pandas.Series(AGE_MAPPER[age])
