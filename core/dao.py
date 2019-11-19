@@ -5,6 +5,35 @@ from decouple import config
 
 from core.queries import QUERY_SINGLE_TARGET, QUERY_ALL_PERSONS
 
+AGE_TABLE = {
+    (range(0, 1), 1),
+    (range(1, 6), 2),
+    (range(6, 12), 3),
+    (range(12, 18), 4),
+    (range(18, 22), 5),
+    (range(22, 26), 6),
+    (range(26, 31), 7),
+    (range(31, 36), 8),
+    (range(36, 41), 9),
+    (range(41, 46), 10),
+    (range(46, 51), 11),
+    (range(51, 56), 12),
+    (range(56, 61), 13),
+    (range(61, 66), 14),
+    (range(66, 71), 15),
+    (range(71, 76), 16),
+    (range(76, 81), 17),
+    (range(81, 86), 18),
+    (range(86, 119), 19),
+}
+AGE_MAPPER = dict()
+for item in AGE_TABLE:
+    AGE_MAPPER = {
+        **AGE_MAPPER,
+        **{k: ('%s-%s' % (item[0][0], item[0][-1]), item[1])
+           for k in item[0]}
+    }
+
 
 def client():
     orcl = cx_Oracle.connect(
@@ -64,3 +93,8 @@ def all_persons(cursor):
         ]
 
     )
+
+
+def apparent_age(age):
+    if age is not None:
+        return AGE_MAPPER[age]

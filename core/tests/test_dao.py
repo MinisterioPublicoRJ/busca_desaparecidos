@@ -4,7 +4,11 @@ from unittest import TestCase, mock
 
 import pandas
 
-from core.dao import search_target_person, all_persons
+from core.dao import (
+    search_target_person,
+    all_persons,
+    apparent_age
+)
 from core.queries import QUERY_SINGLE_TARGET, QUERY_ALL_PERSONS
 
 
@@ -133,3 +137,48 @@ class Dao(TestCase):
         cursor_mock.execute.assert_called_once_with(
             QUERY_ALL_PERSONS
         )
+
+
+class PreProcess(TestCase):
+    def test_calculate_apparent_age(self):
+        person_data = (
+            dt(1941, 4, 27, 0, 0),
+            78,
+            None,
+            dt(2017, 2, 2, 0, 0),
+            Decimal('-22.8658255011035'),
+            Decimal('-43.2539217453901'),
+            'BAIRRO',
+            None,
+            None,
+            Decimal('-22.9232212815581'),
+            Decimal('-43.4509333229307'),
+            'CIDADE',
+            '12345'
+        )
+        person_series = pandas.Series(
+            person_data,
+            index=[
+                'data_nascimento',
+                'idade',
+                'foto',
+                'data_fato',
+                'bairro_latitude',
+                'bairro_longitude',
+                'bairro_nome',
+                'idade_aparente',
+                'indice_idade_aparente',
+                'cidade_latitude',
+                'cidade_longitude',
+                'cidade_nome',
+                'id_sinalid'
+            ]
+        )
+        expected_df = person_series.copy()
+
+        person_series[['idade_aparente', 'indice_idade_aparente']]\
+            = apparent_age(person_series.idade)
+        expected_df['idade_aparente'] = '76-80'
+        expected_df['indice_idade_aparente'] = 17
+
+        pandas.testing.assert_series_equal(person_series, expected_df)
