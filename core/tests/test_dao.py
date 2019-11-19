@@ -11,10 +11,14 @@ from core.queries import QUERY_SINGLE_TARGET, QUERY_ALL_PERSONS
 class Dao(TestCase):
     def test_search_target_person(self):
         person_data = (
+            dt(1941, 4, 27, 0, 0),
+            78,
+            None,
             dt(2017, 2, 2, 0, 0),
             Decimal('-22.8658255011035'),
-            Decimal('-53.2539217453901'),
+            Decimal('-43.2539217453901'),
             'BAIRRO',
+            None,
             Decimal('-22.9232212815581'),
             Decimal('-43.4509333229307'),
             'CIDADE',
@@ -32,10 +36,14 @@ class Dao(TestCase):
         expected_person = pandas.Series(
             person_data,
             index=[
+                'data_nascimento',
+                'idade',
+                'foto',
                 'data_fato',
                 'bairro_latitude',
                 'bairro_longitude',
                 'bairro_nome',
+                'idade_aparente',
                 'cidade_latitude',
                 'cidade_longitude',
                 'cidade_nome',
@@ -65,24 +73,32 @@ class Dao(TestCase):
     def test_retrieve_all_person(self):
         person_data = [
             (
+                dt(1941, 4, 27, 0, 0),
+                78,
+                None,
                 dt(2017, 2, 2, 0, 0),
                 Decimal('-22.8658255011035'),
-                Decimal('-53.2539217453901'),
-                'BAIRRO',
+                Decimal('-43.2539217453901'),
+                'BAIRRO 1',
+                None,
                 Decimal('-22.9232212815581'),
                 Decimal('-43.4509333229307'),
-                'CIDADE',
+                'CIDADE 1',
                 '12345'
             ),
             (
+                dt(1941, 4, 27, 0, 0),
+                78,
+                None,
                 dt(2017, 2, 2, 0, 0),
                 Decimal('-22.8658255011035'),
-                Decimal('-53.2539217453901'),
-                'BAIRRO',
+                Decimal('-43.2539217453901'),
+                'BAIRRO 2',
+                None,
                 Decimal('-22.9232212815581'),
                 Decimal('-43.4509333229307'),
-                'CIDADE',
-                '12345'
+                'CIDADE 2',
+                '67890'
             )
         ]
 
@@ -91,10 +107,14 @@ class Dao(TestCase):
         expected_persons = pandas.DataFrame(
             person_data,
             columns=[
+                'data_nascimento',
+                'idade',
+                'foto',
                 'data_fato',
                 'bairro_latitude',
                 'bairro_longitude',
                 'bairro_nome',
+                'idade_aparente',
                 'cidade_latitude',
                 'cidade_longitude',
                 'cidade_nome',

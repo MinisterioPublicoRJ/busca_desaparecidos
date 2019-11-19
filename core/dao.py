@@ -26,10 +26,14 @@ def search_target_person(cursor, id_sinalid):
     return pandas.Series(
         person,
         index=[
+            'data_nascimento',
+            'idade',
+            'foto',
             'data_fato',
             'bairro_latitude',
             'bairro_longitude',
             'bairro_nome',
+            'idade_aparente',
             'cidade_latitude',
             'cidade_longitude',
             'cidade_nome',
@@ -43,10 +47,14 @@ def all_persons(cursor):
     return pandas.DataFrame(
         result,
         columns=[
+            'data_nascimento',
+            'idade',
+            'foto',
             'data_fato',
             'bairro_latitude',
             'bairro_longitude',
             'bairro_nome',
+            'idade_aparente',
             'cidade_latitude',
             'cidade_longitude',
             'cidade_nome',
