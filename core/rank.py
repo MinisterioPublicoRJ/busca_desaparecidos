@@ -75,7 +75,8 @@ def age_score(target_df, all_persons_df):
 def calculate_scores(target_person, all_persons_df):
     scores = [
         lat_long_score,
-        date_score
+        date_score,
+        age_score
     ]
 
     score_df = scores[0](target_person, all_persons_df)
@@ -86,11 +87,10 @@ def calculate_scores(target_person, all_persons_df):
 
 
 def final_score(all_persons_df):
-    scores = [
-        'lat_long_score',
-        'date_score'
+    score_columns = all_persons_df.columns[
+        all_persons_df.columns.str.endswith('_score')
     ]
     final_score_df = all_persons_df.copy()
-    final_score_df['final_score'] = final_score_df[scores].sum(axis=1)
+    final_score_df['final_score'] = final_score_df[score_columns].sum(axis=1)
     return final_score_df.sort_values(
         'final_score', ascending=True).reset_index(drop=True)

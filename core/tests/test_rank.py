@@ -723,9 +723,10 @@ class ApparentAgeScore(TestCase):
 
 
 class FinalScore(TestCase):
+    @mock.patch('core.rank.age_score', return_value='age score')
     @mock.patch('core.rank.date_score', return_value='date score')
     @mock.patch('core.rank.lat_long_score', return_value='lat long score')
-    def test_run_all_scores(self, _ll_score, _dt_score):
+    def test_run_all_scores(self, _ll_score, _dt_score, _age_score):
         target_person = 'person'
         all_persons_df = 'all persons'
 
@@ -733,18 +734,21 @@ class FinalScore(TestCase):
 
         _ll_score.assert_called_once_with(target_person, all_persons_df)
         _dt_score.assert_called_once_with(target_person, 'lat long score')
-        self.assertEqual(score_df, 'date score')
+        _age_score.assert_called_once_with(target_person, 'date score')
+        self.assertEqual(score_df, 'age score')
 
     def test_calculate_final_score(self):
         all_person_data = [
             (
                 0.1,
                 0.2,
+                0.4,
                 '12345'
             ),
             (
                 0.5,
                 0.6,
+                0.1,
                 '67890'
             )
         ]
@@ -753,6 +757,7 @@ class FinalScore(TestCase):
             columns=[
                 'lat_long_score',
                 'date_score',
+                'age_score',
                 'id_sinalid'
             ]
         )
@@ -761,8 +766,8 @@ class FinalScore(TestCase):
 
         expected = all_persons_df.copy()
 
-        expected.loc[0, 'final_score'] = 0.3
-        expected.loc[1, 'final_score'] = 1.1
+        expected.loc[0, 'final_score'] = 0.7
+        expected.loc[1, 'final_score'] = 1.2
 
         pandas.testing.assert_frame_equal(
             score_df,
