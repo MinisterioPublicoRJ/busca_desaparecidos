@@ -57,6 +57,8 @@ class Dao(TestCase):
                 'id_sinalid'
             ]
         )
+        expected_person[['idade_aparente', 'indice_idade_aparente']]\
+            = ('76-80', 17)
 
         pandas.testing.assert_series_equal(person, expected_person)
         cursor_mock.execute.assert_called_once_with(
@@ -131,6 +133,10 @@ class Dao(TestCase):
                 'id_sinalid'
             ]
         )
+        expected_persons.loc[0, ['idade_aparente', 'indice_idade_aparente']]\
+            = ('76-80', 17)
+        expected_persons.loc[1, ['idade_aparente', 'indice_idade_aparente']]\
+            = ('76-80', 17)
 
         persons = all_persons(cursor_mock)
 

@@ -53,7 +53,7 @@ def search_target_person(cursor, id_sinalid):
     except StopIteration:
         return None
 
-    return pandas.Series(
+    person_series = pandas.Series(
         person,
         index=[
             'data_nascimento',
@@ -71,11 +71,14 @@ def search_target_person(cursor, id_sinalid):
             'id_sinalid'
         ]
     )
+    person_series[['idade_aparente', 'indice_idade_aparente']]\
+        = apparent_age(person_series.idade)
+    return person_series
 
 
 def all_persons(cursor):
     result = cursor.execute(QUERY_ALL_PERSONS)
-    return pandas.DataFrame(
+    persons = pandas.DataFrame(
         result,
         columns=[
             'data_nascimento',
@@ -94,6 +97,9 @@ def all_persons(cursor):
         ]
 
     )
+    persons[['idade_aparente', 'indice_idade_aparente']]\
+        = persons.apply(apparent_age, axis=1)
+    return persons
 
 
 def apparent_age(age_or_row):
