@@ -635,6 +635,49 @@ class ApparentAgeScore(TestCase):
 
         pandas.testing.assert_frame_equal(score_df, expected)
 
+    def test_apparent_age_score_no_age_info(self):
+        target_data = (
+            18,
+            '18-21',
+            5
+        )
+        target_df = pandas.Series(
+            target_data,
+            index=[
+                'idade',
+                'idade_aparente',
+                'indice_idade_aparente'
+            ]
+        )
+        all_person_data = [
+            (
+                None,
+                None,
+                None
+            ),
+            (
+                23,
+                '22-25',
+                6
+            )
+        ]
+        all_persons_df = pandas.DataFrame(
+            all_person_data,
+            columns=[
+                'idade',
+                'idade_aparente',
+                'indice_idade_aparente'
+            ]
+        )
+
+        score_df = age_score(target_df, all_persons_df)
+
+        expected = all_persons_df.copy()
+        expected.loc[0, 'age_score'] = 19
+        expected.loc[1, 'age_score'] = 1
+
+        pandas.testing.assert_frame_equal(score_df, expected)
+
 
 class FinalScore(TestCase):
     @mock.patch('core.rank.date_score', return_value='date score')

@@ -63,11 +63,12 @@ def date_score(target_df, all_persons_df):
     return dt_score_df
 
 
-
 def age_score(target_df, all_persons_df):
+    max_age_score = 18
     score_df = all_persons_df.copy()
     score_df['age_score']\
         = abs(score_df.indice_idade_aparente - target_df.indice_idade_aparente)
+    score_df.age_score = score_df.age_score.fillna(max_age_score + 1)
     return score_df
 
 
