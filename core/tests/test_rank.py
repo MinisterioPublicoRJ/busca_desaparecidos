@@ -9,7 +9,8 @@ from core.rank import (
     lat_long_score,
     date_score,
     final_score,
-    calculate_scores
+    calculate_scores,
+    age_score
 )
 
 
@@ -585,6 +586,52 @@ class FactDate(TestCase):
         expected = all_persons_df.copy()
         expected.loc[0, 'date_score'] = 0.0
         expected.loc[1, 'date_score'] = np.inf
+
+        pandas.testing.assert_frame_equal(score_df, expected)
+
+
+class ApparentAgeScore(TestCase):
+    def test_apparent_age_score(self):
+        target_data = (
+            18,
+            '18-21',
+            5
+        )
+        target_df = pandas.Series(
+            target_data,
+            index=[
+                'idade',
+                'idade_aparente',
+                'indice_idade_aparente'
+            ]
+        )
+        all_person_data = [
+            (
+                50,
+                '46-50',
+                11
+            ),
+            (
+                23,
+                '22-25',
+                6
+            )
+        ]
+        all_persons_df = pandas.DataFrame(
+            all_person_data,
+            columns=[
+                'idade',
+                'idade_aparente',
+                'indice_idade_aparente'
+            ]
+        )
+
+        score_df = age_score(target_df, all_persons_df)
+
+        expected = all_persons_df.copy()
+        expected.loc[0, 'age_score'] = 6
+        expected.loc[1, 'age_score'] = 1
+        expected.age_score = expected.age_score.astype(int)
 
         pandas.testing.assert_frame_equal(score_df, expected)
 
