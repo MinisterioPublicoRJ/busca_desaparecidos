@@ -361,7 +361,7 @@ class LatLongScore(TestCase):
         score_df = lat_long_score(target_df, all_persons_df)
 
         expected = all_persons_df.copy()
-        expected.loc[0, 'lat_long_score'] = np.inf
+        expected.loc[0, 'lat_long_score'] = np.nan
         expected.loc[1, 'lat_long_score'] = 2132643.8456799006
 
         pandas.testing.assert_frame_equal(score_df, expected)
@@ -508,8 +508,8 @@ class FactDate(TestCase):
         score_df = date_score(target_df, all_persons_df)
 
         expected = all_persons_df.copy()
-        expected.loc[0, 'date_score'] = np.inf
-        expected.loc[1, 'date_score'] = np.inf
+        expected.loc[0, 'date_score'] = np.nan
+        expected.loc[1, 'date_score'] = np.nan
 
         pandas.testing.assert_frame_equal(score_df, expected)
 
@@ -547,7 +547,7 @@ class FactDate(TestCase):
 
         expected = all_persons_df.copy()
         expected.loc[0, 'date_score'] = 365
-        expected.loc[1, 'date_score'] = np.inf
+        expected.loc[1, 'date_score'] = np.nan
 
         pandas.testing.assert_frame_equal(score_df, expected)
 
@@ -585,7 +585,7 @@ class FactDate(TestCase):
 
         expected = all_persons_df.copy()
         expected.loc[0, 'date_score'] = 0.0
-        expected.loc[1, 'date_score'] = np.inf
+        expected.loc[1, 'date_score'] = np.nan
 
         pandas.testing.assert_frame_equal(score_df, expected)
 
@@ -678,7 +678,7 @@ class ApparentAgeScore(TestCase):
 
         pandas.testing.assert_frame_equal(score_df, expected)
 
-    def test_apparent_age_score_target_person_withou_age_info(self):
+    def test_apparent_age_score_target_person_without_age_info(self):
         target_data = (
             np.nan,
             np.nan,

@@ -23,7 +23,7 @@ def lat_long_score(target_df, all_persons_df):
         elif all(row_coord_city):
             coord_2 = row_coord_city
         else:
-            return np.inf
+            return np.nan
 
         dist = distance(coord_1, coord_2).meters
 
@@ -54,7 +54,7 @@ def date_score(target_df, all_persons_df):
             except ZeroDivisionError:
                 return 0.6
 
-        return np.inf
+        return np.nan
 
     dt_score_df = all_persons_df.copy()
     dt_score_df['date_score'] = dt_score_df.data_fato.map(
