@@ -18,6 +18,7 @@ class Dao(TestCase):
         person_data = (
             dt(1941, 4, 27, 0, 0),
             78,
+            'M',
             None,
             dt(2017, 2, 2, 0, 0),
             Decimal('-22.8658255011035'),
@@ -44,6 +45,7 @@ class Dao(TestCase):
             index=[
                 'data_nascimento',
                 'idade',
+                'sexo',
                 'foto',
                 'data_fato',
                 'bairro_latitude',
@@ -85,6 +87,7 @@ class Dao(TestCase):
                 dt(1941, 4, 27, 0, 0),
                 78,
                 None,
+                None,
                 dt(2017, 2, 2, 0, 0),
                 Decimal('-22.8658255011035'),
                 Decimal('-43.2539217453901'),
@@ -99,6 +102,7 @@ class Dao(TestCase):
             (
                 dt(1941, 4, 27, 0, 0),
                 78,
+                'M',
                 None,
                 dt(2017, 2, 2, 0, 0),
                 Decimal('-22.8658255011035'),
@@ -120,6 +124,7 @@ class Dao(TestCase):
             columns=[
                 'data_nascimento',
                 'idade',
+                'sexo',
                 'foto',
                 'data_fato',
                 'bairro_latitude',
