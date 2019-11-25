@@ -77,7 +77,10 @@ def age_score(target_df, all_persons_df):
 def gender_score(target_person, all_persons_df):
     score_df = all_persons_df.copy()
     score_df['gender_score'] = (
-        score_df['sexo'] == target_person['sexo']).astype(int)
+        score_df['sexo'] != target_person['sexo']).astype(float)
+    score_df['gender_score'] = np.where(
+        score_df['sexo'].isnull(), 0.5, score_df['gender_score']
+    )
     return score_df
 
 

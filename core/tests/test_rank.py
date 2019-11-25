@@ -1080,7 +1080,32 @@ class GenderScore(TestCase):
 
         score_df = gender_score(target_person, all_persons)
         expected = pandas.DataFrame(
-            [('M', '12345', 1), ('F', '67890', 0)],
+            [('M', '12345', 0.0), ('F', '67890', 1.0)],
+            columns=[
+                'sexo',
+                'id_sinalid',
+                'gender_score'
+            ]
+        )
+
+        pandas.testing.assert_frame_equal(score_df, expected)
+
+    def test_gender_score_one_row_has_no_gender(self):
+        target_person = pandas.Series(
+            ('M', '1245'),
+            index=['sexo', 'id_sinalid']
+        )
+        all_persons = pandas.DataFrame(
+            [('M', '12345'), (None, '67890')],
+            columns=[
+                'sexo',
+                'id_sinalid'
+            ]
+        )
+
+        score_df = gender_score(target_person, all_persons)
+        expected = pandas.DataFrame(
+            [('M', '12345', 0), (None, '67890', 0.5)],
             columns=[
                 'sexo',
                 'id_sinalid',
