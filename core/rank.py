@@ -1,3 +1,4 @@
+from collections import namedtuple
 from functools import partial
 
 import numpy as np
@@ -23,7 +24,7 @@ def lat_long_score(target_df, all_persons_df):
         elif all(row_coord_city):
             coord_2 = row_coord_city
         else:
-            return np.inf
+            return np.nan
 
         dist = distance(coord_1, coord_2).meters
 
@@ -54,7 +55,7 @@ def date_score(target_df, all_persons_df):
             except ZeroDivisionError:
                 return 0.6
 
-        return np.inf
+        return np.nan
 
     dt_score_df = all_persons_df.copy()
     dt_score_df['date_score'] = dt_score_df.data_fato.map(
@@ -63,25 +64,44 @@ def date_score(target_df, all_persons_df):
     return dt_score_df
 
 
-def calculate_scores(target_person, all_persons_df):
+def age_score(target_df, all_persons_df):
+    max_age_score = 18
+    score_df = all_persons_df.copy()
+    score_df['age_score']\
+        = abs(score_df.indice_idade_aparente - target_df.indice_idade_aparente)
+    score_df.age_score = score_df.age_score.fillna(max_age_score + 1)
+    return score_df
+
+
+def calculate_scores(target_person, all_persons_df, scale=True):
+    Score = namedtuple('Score', ['func', 'name'])
     scores = [
-        lat_long_score,
-        date_score
+        Score(lat_long_score, 'lat_long_score'),
+        Score(date_score, 'date_score'),
+        Score(age_score, 'age_score'),
     ]
+    score_names = [s.name for s in scores]
 
-    score_df = scores[0](target_person, all_persons_df)
+    score_df = scores[0].func(target_person, all_persons_df)
+    score_df[scores[0].name] = score_df[scores[0].name].fillna(
+        score_df[scores[0].name].max() + 1
+    )
     for score in scores[1:]:
-        score_df = score(target_person, score_df)
+        score_df = score.func(target_person, score_df)
+        score_df[score.name] = score_df[score.name].fillna(
+            score_df[score.name].max() + 1
+        )
 
+    if scale:
+        score_df[score_names] /= score_df[score_names].max()
     return score_df
 
 
 def final_score(all_persons_df):
-    scores = [
-        'lat_long_score',
-        'date_score'
+    score_columns = all_persons_df.columns[
+        all_persons_df.columns.str.endswith('_score')
     ]
     final_score_df = all_persons_df.copy()
-    final_score_df['final_score'] = final_score_df[scores].sum(axis=1)
+    final_score_df['final_score'] = final_score_df[score_columns].sum(axis=1)
     return final_score_df.sort_values(
         'final_score', ascending=True).reset_index(drop=True)

@@ -41,7 +41,11 @@
                                 </h3>
                                 <div class="row">
                                     <div class="col-auto">
-                                        <div class="foto foto-desconhecida"></div>
+                                        {% if person_attrs.foto is not None %}
+                                            <div class="foto"><img width=80px style="border-radius: 50%;"src="{{person_attrs.foto.read}}"></div>
+                                        {% else %}
+                                            <div class="foto foto-desconhecida"></div>
+                                        {% endif %}
                                     </div>
                                     <div class="col">
                                         <dl>
