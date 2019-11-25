@@ -73,13 +73,14 @@ def age_score(target_df, all_persons_df):
     return score_df
 
 
-def calculate_scores(target_person, all_persons_df):
+def calculate_scores(target_person, all_persons_df, scale=True):
     Score = namedtuple('Score', ['func', 'name'])
     scores = [
         Score(lat_long_score, 'lat_long_score'),
         Score(date_score, 'date_score'),
         Score(age_score, 'age_score'),
     ]
+    score_names = [s.name for s in scores]
 
     score_df = scores[0].func(target_person, all_persons_df)
     score_df[scores[0].name] = score_df[scores[0].name].fillna(
@@ -91,6 +92,8 @@ def calculate_scores(target_person, all_persons_df):
             score_df[score.name].max() + 1
         )
 
+    if scale:
+        score_df[score_names] /= score_df[score_names].max()
     return score_df
 
 

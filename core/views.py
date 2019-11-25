@@ -30,7 +30,7 @@ class HomeView(FormView):
 
 
 def _ranking(self, target_person, all_persons_df):
-    score_df = calculate_scores(target_person, all_persons_df)
+    score_df = calculate_scores(target_person, all_persons_df, scale=True)
     self.resultado = final_score(score_df)
 
 
