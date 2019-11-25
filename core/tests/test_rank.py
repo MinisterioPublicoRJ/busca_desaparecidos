@@ -723,19 +723,165 @@ class ApparentAgeScore(TestCase):
 
 
 class FinalScore(TestCase):
-    @mock.patch('core.rank.age_score', return_value='age score')
-    @mock.patch('core.rank.date_score', return_value='date score')
-    @mock.patch('core.rank.lat_long_score', return_value='lat long score')
+    @mock.patch('core.rank.age_score')
+    @mock.patch('core.rank.date_score')
+    @mock.patch('core.rank.lat_long_score')
     def test_run_all_scores(self, _ll_score, _dt_score, _age_score):
+        return_mock_ll = mock.MagicMock()
+        return_mock_dt = mock.MagicMock()
+        return_mock_age = mock.MagicMock()
+        _ll_score.return_value = return_mock_ll
+        _dt_score.return_value = return_mock_dt
+        _age_score.return_value = return_mock_age
         target_person = 'person'
         all_persons_df = 'all persons'
 
         score_df = calculate_scores(target_person, all_persons_df)
 
         _ll_score.assert_called_once_with(target_person, all_persons_df)
-        _dt_score.assert_called_once_with(target_person, 'lat long score')
-        _age_score.assert_called_once_with(target_person, 'date score')
-        self.assertEqual(score_df, 'age score')
+        _dt_score.assert_called_once_with(target_person, return_mock_ll)
+        _age_score.assert_called_once_with(target_person, return_mock_dt)
+        self.assertEqual(score_df, return_mock_age)
+
+    def test_run_all_scores_and_replace_nan_with_max_plus_one_value(self):
+        target_person = pandas.Series(
+            [
+               dt(1941, 4, 27, 0, 0),
+               78,
+               None,
+               dt(2017, 2, 2, 0, 0),
+               Decimal('-22.8658255011035'),
+               Decimal('-43.2539217453901'),
+               'BAIRRO',
+               '76-80',
+               17,
+               Decimal('-22.9232212815581'),
+               Decimal('-43.4509333229307'),
+               'CIDADE',
+               '12345'
+            ],
+            index=[
+                'data_nascimento',
+                'idade',
+                'foto',
+                'data_fato',
+                'bairro_latitude',
+                'bairro_longitude',
+                'bairro_nome',
+                'idade_aparente',
+                'indice_idade_aparente',
+                'cidade_latitude',
+                'cidade_longitude',
+                'cidade_nome',
+                'id_sinalid'
+            ]
+        )
+        all_persons = pandas.DataFrame([
+            (
+                dt(1941, 4, 27, 0, 0),
+                78,
+                None,
+                None,
+                Decimal('-22.8658255011035'),
+                Decimal('-44.2539217453901'),
+                'BAIRRO',
+                np.nan,
+                np.nan,
+                Decimal('-22.9232212815581'),
+                Decimal('-43.4509333229307'),
+                'CIDADE',
+                '12345'
+            ),
+            (
+                dt(2001, 4, 27, 0, 0),
+                360,
+                None,
+                dt(2017, 10, 2, 0, 0),
+                None,
+                None,
+                None,
+                '18-21',
+                5,
+                None,
+                None,
+                None,
+                '12345'
+            )],
+            columns=[
+                'data_nascimento',
+                'idade',
+                'foto',
+                'data_fato',
+                'bairro_latitude',
+                'bairro_longitude',
+                'bairro_nome',
+                'idade_aparente',
+                'indice_idade_aparente',
+                'cidade_latitude',
+                'cidade_longitude',
+                'cidade_nome',
+                'id_sinalid'
+            ])
+
+        score_df = calculate_scores(target_person, all_persons)
+
+        expected_df = pandas.DataFrame([
+            (
+                dt(1941, 4, 27, 0, 0),
+                78,
+                None,
+                None,
+                Decimal('-22.8658255011035'),
+                Decimal('-44.2539217453901'),
+                'BAIRRO',
+                np.nan,
+                np.nan,
+                Decimal('-22.9232212815581'),
+                Decimal('-43.4509333229307'),
+                'CIDADE',
+                '12345',
+                102623.39046,
+                242.0 + 1,  # Biggest date distance  + 1
+                19.0
+            ),
+            (
+                dt(2001, 4, 27, 0, 0),
+                360,
+                None,
+                dt(2017, 10, 2, 0, 0),
+                None,
+                None,
+                None,
+                '18-21',
+                5,
+                None,
+                None,
+                None,
+                '12345',
+                102623.39046 + 1,  # Biggest distance in meters + 1
+                242.0,
+                12.0
+            )],
+            columns=[
+                'data_nascimento',
+                'idade',
+                'foto',
+                'data_fato',
+                'bairro_latitude',
+                'bairro_longitude',
+                'bairro_nome',
+                'idade_aparente',
+                'indice_idade_aparente',
+                'cidade_latitude',
+                'cidade_longitude',
+                'cidade_nome',
+                'id_sinalid',
+                'lat_long_score',
+                'date_score',
+                'age_score'
+            ])
+
+        pandas.testing.assert_frame_equal(score_df, expected_df)
 
     def test_calculate_final_score(self):
         all_person_data = [

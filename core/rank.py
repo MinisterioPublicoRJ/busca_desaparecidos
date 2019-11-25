@@ -1,3 +1,4 @@
+from collections import namedtuple
 from functools import partial
 
 import numpy as np
@@ -73,15 +74,22 @@ def age_score(target_df, all_persons_df):
 
 
 def calculate_scores(target_person, all_persons_df):
+    Score = namedtuple('Score', ['func', 'name'])
     scores = [
-        lat_long_score,
-        date_score,
-        age_score
+        Score(lat_long_score, 'lat_long_score'),
+        Score(date_score, 'date_score'),
+        Score(age_score, 'age_score'),
     ]
 
-    score_df = scores[0](target_person, all_persons_df)
+    score_df = scores[0].func(target_person, all_persons_df)
+    score_df[scores[0].name] = score_df[scores[0].name].fillna(
+        score_df[scores[0].name].max() + 1
+    )
     for score in scores[1:]:
-        score_df = score(target_person, score_df)
+        score_df = score.func(target_person, score_df)
+        score_df[score.name] = score_df[score.name].fillna(
+            score_df[score.name].max() + 1
+        )
 
     return score_df
 
