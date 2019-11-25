@@ -73,6 +73,14 @@ def age_score(target_df, all_persons_df):
     return score_df
 
 
+# TODO: refactor function signature: target_person etc.
+def gender_score(target_person, all_persons_df):
+    score_df = all_persons_df.copy()
+    score_df['gender_score'] = (
+        score_df['sexo'] == target_person['sexo']).astype(int)
+    return score_df
+
+
 def calculate_scores(target_person, all_persons_df, scale=True):
     Score = namedtuple('Score', ['func', 'name'])
     scores = [

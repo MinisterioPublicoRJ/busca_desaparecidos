@@ -10,7 +10,8 @@ from core.rank import (
     date_score,
     final_score,
     calculate_scores,
-    age_score
+    age_score,
+    gender_score
 )
 
 
@@ -1061,3 +1062,30 @@ class FinalScore(TestCase):
                 drop=True
             )
         )
+
+
+class GenderScore(TestCase):
+    def test_gender_score(self):
+        target_person = pandas.Series(
+            ('M', '1245'),
+            index=['sexo', 'id_sinalid']
+        )
+        all_persons = pandas.DataFrame(
+            [('M', '12345'), ('F', '67890')],
+            columns=[
+                'sexo',
+                'id_sinalid'
+            ]
+        )
+
+        score_df = gender_score(target_person, all_persons)
+        expected = pandas.DataFrame(
+            [('M', '12345', 1), ('F', '67890', 0)],
+            columns=[
+                'sexo',
+                'id_sinalid',
+                'gender_score'
+            ]
+        )
+
+        pandas.testing.assert_frame_equal(score_df, expected)
