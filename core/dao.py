@@ -58,6 +58,7 @@ def search_target_person(cursor, id_sinalid):
         index=[
             'data_nascimento',
             'idade',
+            'sexo',
             'foto',
             'data_fato',
             'bairro_latitude',
@@ -83,6 +84,7 @@ def all_persons(cursor):
         columns=[
             'data_nascimento',
             'idade',
+            'sexo',
             'foto',
             'data_fato',
             'bairro_latitude',

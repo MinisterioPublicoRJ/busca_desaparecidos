@@ -33,11 +33,6 @@
                             <div class="card-body">
                                 <h3 class="card-title">
                                     Indivíduo
-                                    {% if search_type == "1" %}
-                                        Desaparecido
-                                    {% elif search_type == "2" %}
-                                        Localizado
-                                    {% endif %}
                                 </h3>
                                 <div class="row">
                                     <div class="col-auto">
@@ -51,6 +46,38 @@
                                         <dl>
                                             <dt>ID:</dt>
                                             <dd>{{ person_attrs.id_sinalid | default_if_none:"—" }}</dd>
+                                            <dt>Data Nascimento:</dt>
+                                            <dd>
+                                            {% if person_attrs.data_nascimento is None %}
+                                                —
+                                            {% else %}
+                                                {{ person_attrs.data_nascimento|date:"d/m/Y"}}
+                                            {% endif %}
+                                            </dd>
+                                            <dt>Idade:</dt>
+                                            <dd>
+                                            {% if person_attrs.idade is None %}
+                                                —
+                                            {% else %}
+                                                {{ person_attrs.idade }}
+                                            {% endif %}
+                                            </dd>
+                                            <dt>Idade Aparente:</dt>
+                                            <dd>
+                                            {% if person_attrs.idade_aparente is None %}
+                                                —
+                                            {% else %}
+                                                {{ person_attrs.idade_aparente }}
+                                            {% endif %}
+                                            </dd>
+                                            <dt>Gênero</dt>
+                                            <dd>
+                                            {% if person_attrs.sexo is None %}
+                                                —
+                                            {% else %}
+                                                {{ person_attrs.sexo }}
+                                            {% endif %}
+                                            </dd>
                                             <dt>Data Fato:</dt>
                                             <dd>
                                             {% if person_attrs.data_fato is None %}
@@ -87,11 +114,16 @@
                                     <thead>
                                         <tr>
                                             <th scope="col">identificador sinalid</th>
+                                            <th scope="col">data nascimento</th>
+                                            <th scope="col">idade</th>
+                                            <th scope="col">idade aparente</th>
+                                            <th scope="col">gênero</th>
                                             <th scope="col">data fato</th>
                                             <th scope="col">bairro</th>
                                             <th scope="col">cidade</th>
                                             <th scope="col">lat/long score</th>
                                             <th scope="col">date score</th>
+                                            <th scope="col">age score</th>
                                             <th scope="col">final score</th>
                                         </tr>
                                     </thead>
@@ -99,6 +131,34 @@
                                         {% for row in results %}
                                             <tr>
                                                 <td><a href='search?search_id={{row.id_sinalid}}'>{{row.id_sinalid}}</a></td>
+                                                <td>
+                                                    {% if row.data_nascimento is None %}
+                                                        —
+                                                    {% else %}
+                                                        {{row.data_nascimento|date:"d/m/Y"}}
+                                                    {% endif %}
+                                                </td>
+                                                <td>
+                                                    {% if row.idade is None %}
+                                                        —
+                                                    {% else %}
+                                                        {{row.idade}}
+                                                    {% endif %}
+                                                </td>
+                                                <td>
+                                                    {% if row.idade_aparente is None %}
+                                                        —
+                                                    {% else %}
+                                                        {{row.idade_aparente}}
+                                                    {% endif %}
+                                                </td>
+                                                <td>
+                                                    {% if row.sexo is None %}
+                                                        —
+                                                    {% else %}
+                                                        {{row.sexo}}
+                                                    {% endif %}
+                                                </td>
                                                 <td>{{row.data_fato|date:"d/m/Y"}}</td>
                                                 <td>
                                                     {% if row.bairro_latitude is not None and row.bairro_longitude is not None %}
@@ -124,21 +184,28 @@
                                                     {% if row.lat_long_score is None %}
                                                         —
                                                     {% else %}
-                                                        {{row.lat_long_score|floatformat:3}}
+                                                        {{row.lat_long_score|floatformat:5}}
                                                     {% endif %}
                                                 </td>
                                                 <td>
                                                     {% if row.date_score is None %}
                                                         —
                                                     {% else %}
-                                                        {{row.date_score|floatformat:3}}
+                                                        {{row.date_score|floatformat:5}}
+                                                    {% endif %}
+                                                </td>
+                                                <td>
+                                                    {% if row.age_score is None %}
+                                                        —
+                                                    {% else %}
+                                                        {{row.age_score|floatformat:5}}
                                                     {% endif %}
                                                 </td>
                                                 <td>
                                                     {% if row.final_score is None %}
                                                         —
                                                     {% else %}
-                                                        {{row.final_score|floatformat:3}}
+                                                        {{row.final_score|floatformat:5}}
                                                     {% endif %}
                                                 </td>
                                             </tr>

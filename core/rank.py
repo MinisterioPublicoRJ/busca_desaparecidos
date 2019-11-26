@@ -73,12 +73,31 @@ def age_score(target_df, all_persons_df):
     return score_df
 
 
+# TODO: refactor function signature: target_person etc.
+def gender_score(target_person, all_persons_df):
+    min_gender_val = 0.01
+    score_df = all_persons_df.copy()
+    if not target_person.isnull()['sexo']:
+        score_df['gender_score'] = np.where(
+            score_df['sexo'] == target_person['sexo'],
+            min_gender_val,
+            1
+        )
+        score_df['gender_score'] = np.where(
+            score_df['sexo'].isnull(), 0.5, score_df['gender_score']
+        )
+    else:
+        score_df['gender_score'] = min_gender_val
+    return score_df
+
+
 def calculate_scores(target_person, all_persons_df, scale=True):
     Score = namedtuple('Score', ['func', 'name'])
     scores = [
         Score(lat_long_score, 'lat_long_score'),
         Score(date_score, 'date_score'),
         Score(age_score, 'age_score'),
+        Score(gender_score, 'gender_score'),
     ]
     score_names = [s.name for s in scores]
 
