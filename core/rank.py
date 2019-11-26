@@ -97,6 +97,7 @@ def calculate_scores(target_person, all_persons_df, scale=True):
         Score(lat_long_score, 'lat_long_score'),
         Score(date_score, 'date_score'),
         Score(age_score, 'age_score'),
+        Score(gender_score, 'gender_score'),
     ]
     score_names = [s.name for s in scores]
 

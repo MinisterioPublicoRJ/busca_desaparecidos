@@ -724,16 +724,20 @@ class ApparentAgeScore(TestCase):
 
 
 class FinalScore(TestCase):
+    @mock.patch('core.rank.gender_score')
     @mock.patch('core.rank.age_score')
     @mock.patch('core.rank.date_score')
     @mock.patch('core.rank.lat_long_score')
-    def test_run_all_scores(self, _ll_score, _dt_score, _age_score):
+    def test_run_all_scores(self, _ll_score, _dt_score, _age_score,
+                            _gender_score):
         return_mock_ll = mock.MagicMock()
         return_mock_dt = mock.MagicMock()
         return_mock_age = mock.MagicMock()
+        return_mock_gender = mock.MagicMock()
         _ll_score.return_value = return_mock_ll
         _dt_score.return_value = return_mock_dt
         _age_score.return_value = return_mock_age
+        _gender_score.return_value = return_mock_gender
         target_person = 'person'
         all_persons_df = 'all persons'
 
@@ -742,13 +746,15 @@ class FinalScore(TestCase):
         _ll_score.assert_called_once_with(target_person, all_persons_df)
         _dt_score.assert_called_once_with(target_person, return_mock_ll)
         _age_score.assert_called_once_with(target_person, return_mock_dt)
-        self.assertEqual(score_df, return_mock_age)
+        _gender_score.assert_called_once_with(target_person, return_mock_age)
+        self.assertEqual(score_df, return_mock_gender)
 
     def test_run_all_scores_and_replace_nan_with_max_plus_one_value(self):
         target_person = pandas.Series(
             [
                dt(1941, 4, 27, 0, 0),
                78,
+               'M',
                None,
                dt(2017, 2, 2, 0, 0),
                Decimal('-22.8658255011035'),
@@ -764,6 +770,7 @@ class FinalScore(TestCase):
             index=[
                 'data_nascimento',
                 'idade',
+                'sexo',
                 'foto',
                 'data_fato',
                 'bairro_latitude',
@@ -781,6 +788,7 @@ class FinalScore(TestCase):
             (
                 dt(1941, 4, 27, 0, 0),
                 78,
+                'M',
                 None,
                 None,
                 Decimal('-22.8658255011035'),
@@ -796,6 +804,7 @@ class FinalScore(TestCase):
             (
                 dt(2001, 4, 27, 0, 0),
                 360,
+                'M',
                 None,
                 dt(2017, 10, 2, 0, 0),
                 None,
@@ -811,6 +820,7 @@ class FinalScore(TestCase):
             columns=[
                 'data_nascimento',
                 'idade',
+                'sexo',
                 'foto',
                 'data_fato',
                 'bairro_latitude',
@@ -830,6 +840,7 @@ class FinalScore(TestCase):
             (
                 dt(1941, 4, 27, 0, 0),
                 78,
+                'M',
                 None,
                 None,
                 Decimal('-22.8658255011035'),
@@ -843,11 +854,13 @@ class FinalScore(TestCase):
                 '12345',
                 102623.39046,
                 242.0 + 1,  # Biggest date distance  + 1
-                19.0
+                19.0,
+                0.01
             ),
             (
                 dt(2001, 4, 27, 0, 0),
                 360,
+                'M',
                 None,
                 dt(2017, 10, 2, 0, 0),
                 None,
@@ -861,11 +874,13 @@ class FinalScore(TestCase):
                 '12345',
                 102623.39046 + 1,  # Biggest distance in meters + 1
                 242.0,
-                12.0
+                12.0,
+                0.01
             )],
             columns=[
                 'data_nascimento',
                 'idade',
+                'sexo',
                 'foto',
                 'data_fato',
                 'bairro_latitude',
@@ -879,7 +894,8 @@ class FinalScore(TestCase):
                 'id_sinalid',
                 'lat_long_score',
                 'date_score',
-                'age_score'
+                'age_score',
+                'gender_score'
             ])
 
         pandas.testing.assert_frame_equal(score_df, expected_df)
@@ -889,6 +905,7 @@ class FinalScore(TestCase):
             [
                dt(1941, 4, 27, 0, 0),
                78,
+               'M',
                None,
                dt(2017, 2, 2, 0, 0),
                Decimal('-22.8658255011035'),
@@ -904,6 +921,7 @@ class FinalScore(TestCase):
             index=[
                 'data_nascimento',
                 'idade',
+                'sexo',
                 'foto',
                 'data_fato',
                 'bairro_latitude',
@@ -921,6 +939,7 @@ class FinalScore(TestCase):
             (
                 dt(1941, 4, 27, 0, 0),
                 78,
+                'M',
                 None,
                 None,
                 Decimal('-22.8658255011035'),
@@ -936,6 +955,7 @@ class FinalScore(TestCase):
             (
                 dt(2001, 4, 27, 0, 0),
                 360,
+                'M',
                 None,
                 dt(2017, 10, 2, 0, 0),
                 None,
@@ -951,6 +971,7 @@ class FinalScore(TestCase):
             columns=[
                 'data_nascimento',
                 'idade',
+                'sexo',
                 'foto',
                 'data_fato',
                 'bairro_latitude',
@@ -970,6 +991,7 @@ class FinalScore(TestCase):
             (
                 dt(1941, 4, 27, 0, 0),
                 78,
+                'M',
                 None,
                 None,
                 Decimal('-22.8658255011035'),
@@ -983,11 +1005,13 @@ class FinalScore(TestCase):
                 '12345',
                 0.9999902557277512,
                 1.0,  # Biggest date distance  + 1 = 1.0
+                1.0,
                 1.0
             ),
             (
                 dt(2001, 4, 27, 0, 0),
                 360,
+                'M',
                 None,
                 dt(2017, 10, 2, 0, 0),
                 None,
@@ -1001,11 +1025,13 @@ class FinalScore(TestCase):
                 '12345',
                 1.0,  # Biggest distance in meters + 1 = 1.0
                 0.9958847736625515,
-                0.631578947368421
+                0.631578947368421,
+                1.0
             )],
             columns=[
                 'data_nascimento',
                 'idade',
+                'sexo',
                 'foto',
                 'data_fato',
                 'bairro_latitude',
@@ -1019,7 +1045,8 @@ class FinalScore(TestCase):
                 'id_sinalid',
                 'lat_long_score',
                 'date_score',
-                'age_score'
+                'age_score',
+                'gender_score'
             ])
 
         pandas.testing.assert_frame_equal(score_df, expected_df)
