@@ -76,11 +76,14 @@ def age_score(target_df, all_persons_df):
 # TODO: refactor function signature: target_person etc.
 def gender_score(target_person, all_persons_df):
     score_df = all_persons_df.copy()
-    score_df['gender_score'] = (
-        score_df['sexo'] != target_person['sexo']).astype(float)
-    score_df['gender_score'] = np.where(
-        score_df['sexo'].isnull(), 0.5, score_df['gender_score']
-    )
+    if not target_person.isnull()['sexo']:
+        score_df['gender_score'] = (
+            score_df['sexo'] != target_person['sexo']).astype(float)
+        score_df['gender_score'] = np.where(
+            score_df['sexo'].isnull(), 0.5, score_df['gender_score']
+        )
+    else:
+        score_df['gender_score'] = 0.0
     return score_df
 
 
