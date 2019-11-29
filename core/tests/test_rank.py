@@ -594,6 +594,7 @@ class FactDate(TestCase):
 class ApparentAgeScore(TestCase):
     def test_apparent_age_score(self):
         target_data = (
+            dt(1980, 1, 1, 0, 0),
             18,
             '18-21',
             5
@@ -601,6 +602,7 @@ class ApparentAgeScore(TestCase):
         target_df = pandas.Series(
             target_data,
             index=[
+                'data_nascimento',
                 'idade',
                 'idade_aparente',
                 'indice_idade_aparente'
@@ -608,11 +610,13 @@ class ApparentAgeScore(TestCase):
         )
         all_person_data = [
             (
+                dt(2007, 1, 1, 0, 0),
                 50,
                 '46-50',
                 11
             ),
             (
+                dt(2015, 1, 1, 0, 0),
                 23,
                 '22-25',
                 6
@@ -621,6 +625,7 @@ class ApparentAgeScore(TestCase):
         all_persons_df = pandas.DataFrame(
             all_person_data,
             columns=[
+                'data_fato',
                 'idade',
                 'idade_aparente',
                 'indice_idade_aparente'
@@ -630,14 +635,15 @@ class ApparentAgeScore(TestCase):
         score_df = age_score(target_df, all_persons_df)
 
         expected = all_persons_df.copy()
-        expected.loc[0, 'age_score'] = 6
-        expected.loc[1, 'age_score'] = 1
+        expected.loc[0, 'age_score'] = 4
+        expected.loc[1, 'age_score'] = 2
         expected.age_score = expected.age_score.astype(int)
 
         pandas.testing.assert_frame_equal(score_df, expected)
 
-    def test_apparent_age_score_no_age_info(self):
+    def test_apparent_age_one_row_has_no_fact_date_info(self):
         target_data = (
+            dt(1980, 1, 1),
             18,
             '18-21',
             5
@@ -645,6 +651,7 @@ class ApparentAgeScore(TestCase):
         target_df = pandas.Series(
             target_data,
             index=[
+                'data_nascimento',
                 'idade',
                 'idade_aparente',
                 'indice_idade_aparente'
@@ -654,9 +661,11 @@ class ApparentAgeScore(TestCase):
             (
                 None,
                 None,
+                None,
                 None
             ),
             (
+                dt(2003, 1, 1),
                 23,
                 '22-25',
                 6
@@ -665,6 +674,7 @@ class ApparentAgeScore(TestCase):
         all_persons_df = pandas.DataFrame(
             all_person_data,
             columns=[
+                'data_fato',
                 'idade',
                 'idade_aparente',
                 'indice_idade_aparente'
@@ -675,12 +685,13 @@ class ApparentAgeScore(TestCase):
 
         expected = all_persons_df.copy()
         expected.loc[0, 'age_score'] = 19
-        expected.loc[1, 'age_score'] = 1
+        expected.loc[1, 'age_score'] = 0.0
 
         pandas.testing.assert_frame_equal(score_df, expected)
 
-    def test_apparent_age_score_target_person_without_age_info(self):
+    def test_apparent_age_score_target_person_without_birthdate_info(self):
         target_data = (
+            pandas.NaT,
             np.nan,
             np.nan,
             np.nan
@@ -688,6 +699,7 @@ class ApparentAgeScore(TestCase):
         target_df = pandas.Series(
             target_data,
             index=[
+                'data_nascimento',
                 'idade',
                 'idade_aparente',
                 'indice_idade_aparente'
@@ -695,11 +707,13 @@ class ApparentAgeScore(TestCase):
         )
         all_person_data = [
             (
+                dt(2007, 1, 1),
                 50,
                 '46-50',
                 11
             ),
             (
+                dt(2010, 1, 1),
                 23,
                 '22-25',
                 6
@@ -708,6 +722,7 @@ class ApparentAgeScore(TestCase):
         all_persons_df = pandas.DataFrame(
             all_person_data,
             columns=[
+                'data_fato',
                 'idade',
                 'idade_aparente',
                 'indice_idade_aparente'
@@ -803,7 +818,7 @@ class FinalScore(TestCase):
             ),
             (
                 dt(2001, 4, 27, 0, 0),
-                360,
+                18,
                 'M',
                 None,
                 dt(2017, 10, 2, 0, 0),
@@ -859,7 +874,7 @@ class FinalScore(TestCase):
             ),
             (
                 dt(2001, 4, 27, 0, 0),
-                360,
+                18,
                 'M',
                 None,
                 dt(2017, 10, 2, 0, 0),
