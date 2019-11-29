@@ -31,10 +31,7 @@ def lat_long_score(target_df, all_persons_df):
 
         dist = distance(coord_1, coord_2).meters
 
-        try:
-            return dist
-        except ZeroDivisionError:
-            return 1
+        return dist
 
     coord_neigh = (
         target_df['bairro_latitude'], target_df['bairro_longitude']
@@ -53,10 +50,7 @@ def lat_long_score(target_df, all_persons_df):
 def date_score(target_df, all_persons_df):
     def score(target_dt, row_dt):
         if target_dt is not None and not pandas.isnull(row_dt):
-            try:
-                return abs((target_dt - row_dt).days)
-            except ZeroDivisionError:
-                return 0.6
+            return abs((target_dt - row_dt).days)
 
         return np.nan
 
