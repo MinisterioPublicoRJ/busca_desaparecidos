@@ -65,15 +65,21 @@ def age_score(target_df, all_persons_df):
     max_age_score = 18
     score_df = all_persons_df.copy()
 
+    def _to_year(val):
+        try:
+            return val // timedelta(days=365.2425)
+        except TypeError:
+            return np.nan
+
     if pandas.isnull(target_df.data_nascimento):
         score_df['age_score'] = np.nan
 
     else:
         relative_age = abs(
-            all_persons_df['data_fato'] - target_df['data_nascimento']
+            score_df['data_fato'] - target_df['data_nascimento']
         )
         relative_age = pandas.DataFrame(
-            (relative_age // timedelta(days=365.2425)).values,
+            relative_age.map(_to_year).values,
             columns=['idade']
         )
         relative_age[['idade_aparente', 'indice_idade_aparente']]\

@@ -659,7 +659,7 @@ class ApparentAgeScore(TestCase):
         )
         all_person_data = [
             (
-                None,
+                pandas.NaT,
                 None,
                 None,
                 None
