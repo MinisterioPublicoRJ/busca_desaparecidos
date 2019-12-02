@@ -44,7 +44,7 @@ class SearchView(TemplateView):
         while self.resultado is None:
             # TODO: test if the router accepts empty response indefinitely
             # yield ''
-            yield ' '
+            yield 'a'
             time.sleep(1)
 
         context['results'] = _prepare_results(self.resultado)
