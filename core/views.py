@@ -29,7 +29,8 @@ class HomeView(FormView):
     template_name = 'core/home.html'
 
 
-def _ranking(self, target_person, all_persons_df):
+def _ranking(self, cursor, target_person):
+    all_persons_df = all_persons(cursor)
     score_df = calculate_scores(target_person, all_persons_df, scale=True)
     self.resultado = final_score(score_df)
 
@@ -37,14 +38,14 @@ def _ranking(self, target_person, all_persons_df):
 class SearchView(TemplateView):
     template_name = 'core/search.html'
 
-    def iterador(self, request, context, target_person, all_persons):
+    def iterador(self, request, context, cursor, target_person):
         self.resultado = None
-        p = Thread(target=_ranking, args=(self, target_person, all_persons))
+        p = Thread(target=_ranking, args=(self, cursor, target_person))
         p.start()
         while self.resultado is None:
             # TODO: test if the router accepts empty response indefinitely
             # yield ''
-            yield 'a'
+            yield ' '
             time.sleep(1)
 
         context['results'] = _prepare_results(self.resultado)
@@ -69,14 +70,12 @@ class SearchView(TemplateView):
                 )
                 return self.render_to_response(context)
 
-            all_persons_df = all_persons(cursor)
-
             return StreamingHttpResponse(
                 self.iterador(
                     request,
                     context,
+                    cursor,
                     target_person,
-                    all_persons_df
                 )
             )
 
