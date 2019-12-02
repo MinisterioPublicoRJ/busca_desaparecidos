@@ -105,6 +105,7 @@ def all_persons(cursor):
 
 
 def apparent_age(age_or_row):
+    empty_response = (None, np.nan)
     if isinstance(age_or_row, pandas.Series):
         age = age_or_row.idade
     else:
@@ -112,6 +113,6 @@ def apparent_age(age_or_row):
 
     if not pandas.isnull(age):
         return pandas.Series(AGE_MAPPER[age])\
-            if age in AGE_MAPPER else (None, np.nan)
+            if age in AGE_MAPPER else empty_response
 
-    return None, np.nan
+    return pandas.Series(empty_response)

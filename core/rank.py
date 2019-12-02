@@ -1,10 +1,13 @@
 from collections import namedtuple
+from datetime import timedelta
 from functools import partial
 
 import numpy as np
 import pandas
 
 from geopy.distance import distance
+
+from core.dao import apparent_age
 
 
 def lat_long_score(target_df, all_persons_df):
@@ -28,10 +31,7 @@ def lat_long_score(target_df, all_persons_df):
 
         dist = distance(coord_1, coord_2).meters
 
-        try:
-            return dist
-        except ZeroDivisionError:
-            return 1
+        return dist
 
     coord_neigh = (
         target_df['bairro_latitude'], target_df['bairro_longitude']
@@ -50,10 +50,7 @@ def lat_long_score(target_df, all_persons_df):
 def date_score(target_df, all_persons_df):
     def score(target_dt, row_dt):
         if target_dt is not None and not pandas.isnull(row_dt):
-            try:
-                return abs((target_dt - row_dt).days)
-            except ZeroDivisionError:
-                return 0.6
+            return abs((target_dt - row_dt).days)
 
         return np.nan
 
@@ -67,8 +64,31 @@ def date_score(target_df, all_persons_df):
 def age_score(target_df, all_persons_df):
     max_age_score = 18
     score_df = all_persons_df.copy()
-    score_df['age_score']\
-        = abs(score_df.indice_idade_aparente - target_df.indice_idade_aparente)
+
+    def _to_year(val):
+        try:
+            return val // timedelta(days=365.2425)
+        except TypeError:
+            return np.nan
+
+    if pandas.isnull(target_df.data_nascimento):
+        score_df['age_score'] = np.nan
+
+    else:
+        relative_age = abs(
+            score_df['data_fato'] - target_df['data_nascimento']
+        )
+        relative_age = pandas.DataFrame(
+            relative_age.map(_to_year).values,
+            columns=['idade']
+        )
+        relative_age[['idade_aparente', 'indice_idade_aparente']]\
+            = relative_age.apply(apparent_age, axis=1)
+
+        score_df['age_score'] = abs(
+            relative_age.indice_idade_aparente
+            - score_df.indice_idade_aparente
+        )
     score_df.age_score = score_df.age_score.fillna(max_age_score + 1)
     return score_df
 
