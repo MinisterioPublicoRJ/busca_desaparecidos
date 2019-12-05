@@ -1,4 +1,8 @@
-# Installing
+# Busca Desaparecidos
+
+Python package for helping localizing missing persons
+
+## Installing
 
     python3 -m venv env
     source env/bin/activate
@@ -6,7 +10,7 @@
 
 Also, make sure to install [Oracle Client libraries](https://oracle.github.io/odpi/doc/installation.html), 64-bit version, Basic Light Edition. Note that you have to be logged in Oracle website (create a free account).
 
-## Mac
+### Mac
 
 On a Mac, after downloading the zip, you can:
 
