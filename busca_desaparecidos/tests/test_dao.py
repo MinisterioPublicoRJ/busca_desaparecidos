@@ -5,12 +5,12 @@ from unittest import TestCase, mock
 import numpy as np
 import pandas
 
-from core.dao import (
+from busca_desaparecidos.dao import (
     search_target_person,
     all_persons,
     apparent_age
 )
-from core.queries import QUERY_SINGLE_TARGET, QUERY_ALL_PERSONS
+from busca_desaparecidos.queries import QUERY_SINGLE_TARGET, QUERY_ALL_PERSONS
 
 
 class Dao(TestCase):

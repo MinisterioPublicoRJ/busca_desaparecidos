@@ -5,7 +5,7 @@ from unittest import TestCase, mock
 import numpy as np
 import pandas
 
-from core.rank import (
+from busca_desaparecidos.rank import (
     lat_long_score,
     date_score,
     final_score,
@@ -739,10 +739,10 @@ class ApparentAgeScore(TestCase):
 
 
 class FinalScore(TestCase):
-    @mock.patch('core.rank.gender_score')
-    @mock.patch('core.rank.age_score')
-    @mock.patch('core.rank.date_score')
-    @mock.patch('core.rank.lat_long_score')
+    @mock.patch('busca_desaparecidos.rank.gender_score')
+    @mock.patch('busca_desaparecidos.rank.age_score')
+    @mock.patch('busca_desaparecidos.rank.date_score')
+    @mock.patch('busca_desaparecidos.rank.lat_long_score')
     def test_run_all_scores(self, _ll_score, _dt_score, _age_score,
                             _gender_score):
         return_mock_ll = mock.MagicMock()
