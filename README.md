@@ -1,5 +1,7 @@
 # Busca Desaparecidos
 
+version 0.0.4dev0
+
 Python package for helping localizing missing persons
 
 ## Installing
