@@ -19,14 +19,3 @@ On a Mac, after downloading the zip, you can:
     exit
     mkdir ~/lib
     ln -s /opt/oracle/instantclient_12_2/libclntsh.dylib.12.1 ~/lib/ 
-
-# Running
-
-    source env/bin/activate
-    python manage.py runserver
-
-Server runs on port 8000.
-
-Example URL: http://localhost:8000/search?search_type=1&search_id=2018RJDS0000000001
-
-See it live at: http://buscadesaparecidos-devbuscadesaparecidos.devcloud.mprj.mp.br/search?search_type=1&search_id=2018RJDS0000000001
