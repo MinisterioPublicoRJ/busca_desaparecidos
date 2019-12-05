@@ -2,7 +2,7 @@ import cx_Oracle
 import numpy as np
 import pandas
 
-from core.queries import QUERY_SINGLE_TARGET, QUERY_ALL_PERSONS
+from busca_desaparecidos.queries import QUERY_SINGLE_TARGET, QUERY_ALL_PERSONS
 
 AGE_TABLE = {
     (range(0, 1), 1),
