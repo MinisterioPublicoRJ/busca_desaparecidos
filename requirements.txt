@@ -1,8 +1,5 @@
 cx-Oracle==7.1.0
-Django==2.1.7
 geopy==1.20.0
-gunicorn==19.9.0
 numpy==1.16.1
 pandas==0.24.1
 python-decouple==3.1
-whitenoise==4.1.2
