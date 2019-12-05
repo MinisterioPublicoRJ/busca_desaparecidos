@@ -2,9 +2,7 @@ import cx_Oracle
 import numpy as np
 import pandas
 
-from decouple import config
-
-from core.queries import QUERY_SINGLE_TARGET, QUERY_ALL_PERSONS
+from busca_desaparecidos.queries import QUERY_SINGLE_TARGET, QUERY_ALL_PERSONS
 
 AGE_TABLE = {
     (range(0, 1), 1),
@@ -36,11 +34,11 @@ for item in AGE_TABLE:
     }
 
 
-def client():
+def client(db_username, db_pwd, db_host):
     orcl = cx_Oracle.connect(
-        config("DB_USER"),
-        config("DB_PWD"),
-        config("DB_HOST")
+        db_username,
+        db_pwd,
+        db_host
     )
     cursor = orcl.cursor()
     return cursor

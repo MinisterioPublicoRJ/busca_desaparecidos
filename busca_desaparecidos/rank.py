@@ -7,7 +7,7 @@ import pandas
 
 from geopy.distance import distance
 
-from core.dao import apparent_age
+from busca_desaparecidos.dao import apparent_age
 
 
 def lat_long_score(target_df, all_persons_df):
