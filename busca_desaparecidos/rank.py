@@ -10,21 +10,25 @@ from geopy.distance import distance
 from busca_desaparecidos.dao import apparent_age
 
 
+def _is_not_empty(coord):
+    return not all([pandas.isnull(val) for val in coord])
+
+
 def lat_long_score(target_df, all_persons_df):
     # Maybe give a higher score for neighborhood proximity
     def score(coord_neigh, coord_city, row):
         row_coord_neigh = (row['bairro_latitude'], row['bairro_longitude'])
         row_coord_city = (row['cidade_latitude'], row['cidade_longitude'])
-        if all(coord_neigh):
+        if _is_not_empty(coord_neigh):
             coord_1 = coord_neigh
-        elif all(coord_city):
+        elif _is_not_empty(coord_city):
             coord_1 = coord_city
         else:
             return 0.0
 
-        if all(row_coord_neigh):
+        if _is_not_empty(row_coord_neigh):
             coord_2 = row_coord_neigh
-        elif all(row_coord_city):
+        elif _is_not_empty(row_coord_city):
             coord_2 = row_coord_city
         else:
             return np.nan
