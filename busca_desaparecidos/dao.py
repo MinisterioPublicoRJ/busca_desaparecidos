@@ -4,6 +4,9 @@ import pandas
 
 from busca_desaparecidos.queries import QUERY_SINGLE_TARGET, QUERY_ALL_PERSONS
 
+
+DATE_COLUMNS = ['data_nascimento', 'data_fato']
+
 AGE_TABLE = {
     (range(0, 1), 1),
     (range(1, 6), 2),
@@ -70,6 +73,9 @@ def search_target_person(cursor, id_sinalid):
             'id_sinalid'
         ]
     )
+    person_series[DATE_COLUMNS] = person_series[DATE_COLUMNS].apply(
+        pandas.to_datetime, errors='coerce'
+    )
     person_series[['idade_aparente', 'indice_idade_aparente']]\
         = apparent_age(person_series.idade)
     return person_series
@@ -96,6 +102,9 @@ def all_persons(cursor):
             'id_sinalid'
         ]
 
+    )
+    persons[DATE_COLUMNS] = persons[DATE_COLUMNS].apply(
+        pandas.to_datetime, errors='coerce'
     )
     persons[['idade_aparente', 'indice_idade_aparente']]\
         = persons.apply(apparent_age, axis=1)
