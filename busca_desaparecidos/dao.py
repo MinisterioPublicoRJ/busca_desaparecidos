@@ -44,6 +44,10 @@ def client(db_username, db_pwd, db_host):
     return cursor
 
 
+def format_query(query, id_sinalid):
+    return query.replace("{{ id_sinalid }}", id_sinalid)
+
+
 def search_target_person(cursor, id_sinalid):
     result = cursor.execute(QUERY_SINGLE_TARGET.format(id=id_sinalid))
     try:

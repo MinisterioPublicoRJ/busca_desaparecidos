@@ -8,7 +8,8 @@ import pandas
 from busca_desaparecidos.dao import (
     search_target_person,
     all_persons,
-    apparent_age
+    apparent_age,
+    format_query,
 )
 from busca_desaparecidos.queries import QUERY_SINGLE_TARGET, QUERY_ALL_PERSONS
 
@@ -377,3 +378,16 @@ class PreProcess(TestCase):
             = data_frame.apply(apparent_age, axis=1, raw=True)
 
         pandas.testing.assert_frame_equal(data_frame, expected_df)
+
+    def test_format_rank_query(self):
+        query = """
+            SELECT * FROM table WHERE id_sinalid = '{{ id_sinalid }}'
+        """
+
+        id_sinalid = "1234"
+        formatted_query = format_query(query, id_sinalid)
+        expected_query = """
+            SELECT * FROM table WHERE id_sinalid = '1234'
+        """
+
+        self.assertEqual(formatted_query, expected_query)
