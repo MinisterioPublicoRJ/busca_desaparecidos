@@ -48,6 +48,15 @@ def format_query(query, id_sinalid):
     return query.replace("{{ id_sinalid }}", id_sinalid)
 
 
+def rank_query(cursor, id_sinalid):
+    with open('busca_desaparecidos/queries/rank.sql') as fobj:
+        query = fobj.read()
+
+    f_query = format_query(query, id_sinalid)
+    cursor.execute(f_query)
+    return cursor.fetchall()
+
+
 def search_target_person(cursor, id_sinalid):
     result = cursor.execute(QUERY_SINGLE_TARGET.format(id=id_sinalid))
     try:

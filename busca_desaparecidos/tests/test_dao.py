@@ -10,6 +10,7 @@ from busca_desaparecidos.dao import (
     all_persons,
     apparent_age,
     format_query,
+    rank_query
 )
 from busca_desaparecidos.queries import QUERY_SINGLE_TARGET, QUERY_ALL_PERSONS
 
@@ -391,3 +392,20 @@ class PreProcess(TestCase):
         """
 
         self.assertEqual(formatted_query, expected_query)
+
+    @mock.patch('busca_desaparecidos.dao.format_query',
+                return_value="formatted query")
+    def test_rank_query(self, _format_query):
+        with open("busca_desaparecidos/queries/rank.sql") as fid:
+            query_fixture = fid.read()
+
+        cursor_mock = mock.MagicMock()
+        cursor_mock.fetchall.return_value = [(1, 2, 3), (4, 5, 6)]
+
+        id_sinalid = "1234"
+        result = rank_query(cursor_mock, id_sinalid)
+
+        _format_query.assert_called_once_with(query_fixture, id_sinalid)
+        cursor_mock.execute.assert_called_once_with("formatted query")
+        cursor_mock.fetchall.assert_called_once_with()
+        self.assertEqual(result, [(1, 2, 3), (4, 5, 6)])
