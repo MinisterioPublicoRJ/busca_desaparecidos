@@ -1,4 +1,3 @@
-import json
 from datetime import datetime
 from unittest import TestCase, mock
 
@@ -86,7 +85,7 @@ class Dao(TestCase):
             }
         ]
 
-        self.assertEqual(json.loads(resp_json), expected)
+        self.assertEqual(resp_json, expected)
 
     @mock.patch("busca_desaparecidos.dao.serialize", return_value="ser result")
     @mock.patch("busca_desaparecidos.dao.rank_query", return_value="result")
@@ -97,5 +96,17 @@ class Dao(TestCase):
         result = rank(cursor, id_sinalid)
 
         _rank_query.assert_called_once_with(cursor, id_sinalid)
-        _serialize.assert_called_once_with("result")
+        _serialize.assert_called_once_with("result", 100)
+        self.assertEqual(result, "ser result")
+
+    @mock.patch("busca_desaparecidos.dao.serialize", return_value="ser result")
+    @mock.patch("busca_desaparecidos.dao.rank_query", return_value="result")
+    def test_whole_workflow_with_limit(self, _rank_query, _serialize):
+        cursor = mock.MagicMock()
+        id_sinalid = "1234"
+
+        result = rank(cursor, id_sinalid, limit=200)
+
+        _rank_query.assert_called_once_with(cursor, id_sinalid)
+        _serialize.assert_called_once_with("result", 200)
         self.assertEqual(result, "ser result")

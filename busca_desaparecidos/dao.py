@@ -1,3 +1,4 @@
+import json
 import os
 
 import cx_Oracle
@@ -31,7 +32,7 @@ def rank_query(cursor, id_sinalid):
     return cursor.fetchall()
 
 
-def serialize(result_set):
+def serialize(result_set, limit=None):
     data_frame = pandas.DataFrame(
         result_set,
         columns=[
@@ -46,9 +47,10 @@ def serialize(result_set):
         ]
     )
 
-    return data_frame.to_json(orient="records")
+    limit = limit if limit else data_frame.shape[0]
+    return json.loads(data_frame.loc[:limit].to_json(orient="records"))
 
 
-def rank(cursor, id_sinalid):
+def rank(cursor, id_sinalid, limit=100):
     result_set = rank_query(cursor, id_sinalid)
-    return serialize(result_set)
+    return serialize(result_set, limit)
