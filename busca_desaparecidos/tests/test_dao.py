@@ -1,379 +1,124 @@
-from datetime import datetime as dt
-from decimal import Decimal
+from datetime import datetime
 from unittest import TestCase, mock
 
-import numpy as np
-import pandas
-
 from busca_desaparecidos.dao import (
-    search_target_person,
-    all_persons,
-    apparent_age
+    format_query,
+    rank_query,
+    serialize,
+    rank,
 )
-from busca_desaparecidos.queries import QUERY_SINGLE_TARGET, QUERY_ALL_PERSONS
 
 
 class Dao(TestCase):
-    def test_search_target_person(self):
-        person_data = (
-            dt(1941, 4, 27, 0, 0),
-            78,
-            'M',
-            None,
-            dt(2017, 2, 2, 0, 0),
-            Decimal('-22.8658255011035'),
-            Decimal('-43.2539217453901'),
-            'BAIRRO',
-            None,
-            None,
-            Decimal('-22.9232212815581'),
-            Decimal('-43.4509333229307'),
-            'CIDADE',
-            '12345'
-        )
+    def test_format_rank_query(self):
+        query = """
+            SELECT * FROM table WHERE id_sinalid = '{{ id_sinalid }}'
+        """
 
-        def fake_gen(data):
-            yield data
+        id_sinalid = "1234"
+        formatted_query = format_query(query, id_sinalid)
+        expected_query = """
+            SELECT * FROM table WHERE id_sinalid = '1234'
+        """
 
-        id_sinalid = '12345'
-        cursor_mock = mock.MagicMock()
-        cursor_mock.execute.return_value = fake_gen(person_data)
+        self.assertEqual(formatted_query, expected_query)
 
-        person = search_target_person(cursor_mock, id_sinalid)
-        expected_person = pandas.Series(
-            person_data,
-            index=[
-                'data_nascimento',
-                'idade',
-                'sexo',
-                'foto',
-                'data_fato',
-                'bairro_latitude',
-                'bairro_longitude',
-                'bairro_nome',
-                'idade_aparente',
-                'indice_idade_aparente',
-                'cidade_latitude',
-                'cidade_longitude',
-                'cidade_nome',
-                'id_sinalid'
-            ]
-        )
-        expected_person[['idade_aparente', 'indice_idade_aparente']]\
-            = ('76-80', 17)
-
-        pandas.testing.assert_series_equal(person, expected_person)
-        cursor_mock.execute.assert_called_once_with(
-            QUERY_SINGLE_TARGET.format(id=id_sinalid)
-        )
-
-    def test_id_sinalid_not_found(self):
-        def query_result(*args):
-            return
-            yield
-
-        search_id = '1234'
+    @mock.patch('busca_desaparecidos.dao.format_query',
+                return_value="formatted query")
+    def test_rank_query(self, _format_query):
+        with open("busca_desaparecidos/queries/rank.sql") as fid:
+            query_fixture = fid.read()
 
         cursor_mock = mock.MagicMock()
+        cursor_mock.fetchall.return_value = [(1, 2, 3), (4, 5, 6)]
 
-        cursor_mock.execute.return_value = query_result()
-        person = search_target_person(cursor_mock, search_id)
+        id_sinalid = "1234"
+        result = rank_query(cursor_mock, id_sinalid)
 
-        self.assertTrue(person is None)
+        _format_query.assert_called_once_with(query_fixture, id_sinalid)
+        cursor_mock.execute.assert_called_once_with("formatted query")
+        cursor_mock.fetchall.assert_called_once_with()
+        self.assertEqual(result, [(1, 2, 3), (4, 5, 6)])
 
-    def test_retrieve_all_person(self):
-        person_data = [
-            (
-                dt(1941, 4, 27, 0, 0),
-                78,
-                None,
-                None,
-                dt(2017, 2, 2, 0, 0),
-                Decimal('-22.8658255011035'),
-                Decimal('-43.2539217453901'),
-                'BAIRRO 1',
-                None,
-                None,
-                Decimal('-22.9232212815581'),
-                Decimal('-43.4509333229307'),
-                'CIDADE 1',
-                '12345'
-            ),
-            (
-                dt(1941, 4, 27, 0, 0),
-                78,
-                'M',
-                None,
-                dt(2017, 2, 2, 0, 0),
-                Decimal('-22.8658255011035'),
-                Decimal('-43.2539217453901'),
-                'BAIRRO 2',
-                None,
-                None,
-                Decimal('-22.9232212815581'),
-                Decimal('-43.4509333229307'),
-                'CIDADE 2',
-                '67890'
-            )
+    def test_serialize_to_json(self):
+        oracle_resp = [
+            ('id 1',
+             'id 2',
+             datetime(1941, 4, 27, 0, 0),
+             0.01,
+             0,
+             0,
+             0,
+             0.01),
+            ('id 3',
+             'id 4',
+             datetime(1972, 4, 27, 0, 0),
+             0.01,
+             0,
+             0,
+             0,
+             0.01)
         ]
 
-        cursor_mock = mock.MagicMock()
-        cursor_mock.execute.return_value = person_data
-        expected_persons = pandas.DataFrame(
-            person_data,
-            columns=[
-                'data_nascimento',
-                'idade',
-                'sexo',
-                'foto',
-                'data_fato',
-                'bairro_latitude',
-                'bairro_longitude',
-                'bairro_nome',
-                'idade_aparente',
-                'indice_idade_aparente',
-                'cidade_latitude',
-                'cidade_longitude',
-                'cidade_nome',
-                'id_sinalid'
-            ]
-        )
-        expected_persons.loc[0, ['idade_aparente', 'indice_idade_aparente']]\
-            = ('76-80', 17)
-        expected_persons.loc[1, ['idade_aparente', 'indice_idade_aparente']]\
-            = ('76-80', 17)
+        resp_json = serialize(oracle_resp)
+        expected = [
+            {
+                "busca_id_sinalid": "id 1",
+                "candidato_id_sinalid": "id 2",
+                "data_nascimento": -905126400000,
+                "score_sexo": 0.01,
+                "score_data_fato": 0,
+                "score_idade": 0,
+                "score_distancia": 0,
+                "score_total": 0.01
+            },
 
-        persons = all_persons(cursor_mock)
-
-        pandas.testing.assert_frame_equal(persons, expected_persons)
-        cursor_mock.execute.assert_called_once_with(
-            QUERY_ALL_PERSONS
-        )
-
-
-class PreProcess(TestCase):
-    def test_calculate_apparent_age(self):
-        person_data = (
-            dt(1941, 4, 27, 0, 0),
-            78,
-            None,
-            dt(2017, 2, 2, 0, 0),
-            Decimal('-22.8658255011035'),
-            Decimal('-43.2539217453901'),
-            'BAIRRO',
-            None,
-            None,
-            Decimal('-22.9232212815581'),
-            Decimal('-43.4509333229307'),
-            'CIDADE',
-            '12345'
-        )
-        person_series = pandas.Series(
-            person_data,
-            index=[
-                'data_nascimento',
-                'idade',
-                'foto',
-                'data_fato',
-                'bairro_latitude',
-                'bairro_longitude',
-                'bairro_nome',
-                'idade_aparente',
-                'indice_idade_aparente',
-                'cidade_latitude',
-                'cidade_longitude',
-                'cidade_nome',
-                'id_sinalid'
-            ]
-        )
-        expected_df = person_series.copy()
-
-        person_series[['idade_aparente', 'indice_idade_aparente']]\
-            = apparent_age(person_series.idade)
-        expected_df['idade_aparente'] = '76-80'
-        expected_df['indice_idade_aparente'] = 17
-
-        pandas.testing.assert_series_equal(person_series, expected_df)
-
-    def test_calculate_apparent_age_in_data_frame(self):
-        data = [
-            (
-                dt(1941, 4, 27, 0, 0),
-                78,
-                None,
-                dt(2017, 2, 2, 0, 0),
-                Decimal('-22.8658255011035'),
-                Decimal('-43.2539217453901'),
-                'BAIRRO',
-                None,
-                None,
-                Decimal('-22.9232212815581'),
-                Decimal('-43.4509333229307'),
-                'CIDADE',
-                '12345'
-            ),
-            (
-                dt(1996, 4, 27, 0, 0),
-                23,
-                None,
-                dt(2017, 2, 2, 0, 0),
-                Decimal('-22.8658255011035'),
-                Decimal('-43.2539217453901'),
-                'BAIRRO',
-                None,
-                None,
-                Decimal('-22.9232212815581'),
-                Decimal('-43.4509333229307'),
-                'CIDADE',
-                '12345'
-            ),
+            {
+                "busca_id_sinalid": "id 3",
+                "candidato_id_sinalid": "id 4",
+                "data_nascimento": 73180800000,
+                "score_sexo": 0.01,
+                "score_data_fato": 0,
+                "score_idade": 0,
+                "score_distancia": 0,
+                "score_total": 0.01
+            }
         ]
-        data_frame = pandas.DataFrame(
-            data,
-            columns=[
-                'data_nascimento',
-                'idade',
-                'foto',
-                'data_fato',
-                'bairro_latitude',
-                'bairro_longitude',
-                'bairro_nome',
-                'idade_aparente',
-                'indice_idade_aparente',
-                'cidade_latitude',
-                'cidade_longitude',
-                'cidade_nome',
-                'id_sinalid'
-            ]
-        )
-        expected_df = data_frame.copy()
 
-        data_frame[['idade_aparente', 'indice_idade_aparente']]\
-            = data_frame.apply(apparent_age, axis=1, raw=True)
+        self.assertEqual(resp_json, expected)
 
-        expected_df.loc[0, ['idade_aparente', 'indice_idade_aparente']]\
-            = ('76-80', 17)
-        expected_df.loc[1, ['idade_aparente', 'indice_idade_aparente']]\
-            = ('22-25', 6)
+    @mock.patch("busca_desaparecidos.dao.serialize", return_value="ser result")
+    @mock.patch("busca_desaparecidos.dao.rank_query", return_value="result")
+    def test_whole_workflow(self, _rank_query, _serialize):
+        cursor = mock.MagicMock()
+        id_sinalid = "1234"
 
-        pandas.testing.assert_frame_equal(data_frame, expected_df)
+        result = rank(cursor, id_sinalid)
 
-    def test_calculate_apparent_age_in_data_frame_age_is_none(self):
-        data = [
-            (
-                None,
-                np.nan,
-                None,
-                dt(2017, 2, 2, 0, 0),
-                Decimal('-22.8658255011035'),
-                Decimal('-43.2539217453901'),
-                'BAIRRO',
-                np.nan,
-                np.nan,
-                Decimal('-22.9232212815581'),
-                Decimal('-43.4509333229307'),
-                'CIDADE',
-                '12345'
-            ),
-            (
-                None,
-                np.nan,
-                None,
-                dt(2017, 2, 2, 0, 0),
-                Decimal('-22.8658255011035'),
-                Decimal('-43.2539217453901'),
-                'BAIRRO',
-                np.nan,
-                np.nan,
-                Decimal('-22.9232212815581'),
-                Decimal('-43.4509333229307'),
-                'CIDADE',
-                '12345'
-            ),
-        ]
-        data_frame = pandas.DataFrame(
-            data,
-            columns=[
-                'data_nascimento',
-                'idade',
-                'foto',
-                'data_fato',
-                'bairro_latitude',
-                'bairro_longitude',
-                'bairro_nome',
-                'idade_aparente',
-                'indice_idade_aparente',
-                'cidade_latitude',
-                'cidade_longitude',
-                'cidade_nome',
-                'id_sinalid'
-            ]
-        )
-        expected_df = data_frame.copy()
+        _rank_query.assert_called_once_with(cursor, id_sinalid)
+        _serialize.assert_called_once_with("result", 100)
+        self.assertEqual(result, "ser result")
 
-        data_frame[['idade_aparente', 'indice_idade_aparente']]\
-            = data_frame.apply(apparent_age, axis=1, raw=True)
+    @mock.patch("busca_desaparecidos.dao.serialize", return_value="ser result")
+    @mock.patch("busca_desaparecidos.dao.rank_query", return_value="result")
+    def test_whole_workflow_with_limit(self, _rank_query, _serialize):
+        cursor = mock.MagicMock()
+        id_sinalid = "1234"
 
-        pandas.testing.assert_frame_equal(data_frame, expected_df)
+        result = rank(cursor, id_sinalid, limit=200)
 
-    def test_calculate_apparent_age_in_data_frame_wrong_age(self):
-        data = [
-            (
-                dt(1941, 4, 27, 0, 0),
-                78,
-                None,
-                dt(2017, 2, 2, 0, 0),
-                Decimal('-22.8658255011035'),
-                Decimal('-43.2539217453901'),
-                'BAIRRO',
-                None,
-                np.nan,
-                Decimal('-22.9232212815581'),
-                Decimal('-43.4509333229307'),
-                'CIDADE',
-                '12345'
-            ),
-            (
-                dt(1659, 4, 27, 0, 0),
-                360,
-                None,
-                dt(2017, 2, 2, 0, 0),
-                Decimal('-22.8658255011035'),
-                Decimal('-43.2539217453901'),
-                'BAIRRO',
-                None,
-                np.nan,
-                Decimal('-22.9232212815581'),
-                Decimal('-43.4509333229307'),
-                'CIDADE',
-                '12345'
-            ),
-        ]
-        data_frame = pandas.DataFrame(
-            data,
-            columns=[
-                'data_nascimento',
-                'idade',
-                'foto',
-                'data_fato',
-                'bairro_latitude',
-                'bairro_longitude',
-                'bairro_nome',
-                'idade_aparente',
-                'indice_idade_aparente',
-                'cidade_latitude',
-                'cidade_longitude',
-                'cidade_nome',
-                'id_sinalid'
-            ]
-        )
-        expected_df = data_frame.copy()
-        expected_df.loc[0, ['idade_aparente', 'indice_idade_aparente']]\
-            = ('76-80', 17.0)
-        expected_df.loc[1, ['idade_aparente', 'indice_idade_aparente']]\
-            = (np.nan, np.nan)
+        _rank_query.assert_called_once_with(cursor, id_sinalid)
+        _serialize.assert_called_once_with("result", 200)
+        self.assertEqual(result, "ser result")
 
-        data_frame[['idade_aparente', 'indice_idade_aparente']]\
-            = data_frame.apply(apparent_age, axis=1, raw=True)
+    @mock.patch("busca_desaparecidos.dao.serialize")
+    @mock.patch("busca_desaparecidos.dao.rank_query", return_value=[])
+    def test_whole_workflow_empty_response(self, _rank_query, _serialize):
+        cursor = mock.MagicMock()
+        id_sinalid = "1234"
 
-        pandas.testing.assert_frame_equal(data_frame, expected_df)
+        result = rank(cursor, id_sinalid, limit=200)
+
+        _rank_query.assert_called_once_with(cursor, id_sinalid)
+        _serialize.assert_not_called()
+        self.assertEqual(result, {'erro': 'ID Sinalid não encontrado'})
