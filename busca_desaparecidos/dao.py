@@ -1,5 +1,11 @@
+import os
+
 import cx_Oracle
 import pandas
+from unipath import Path
+
+
+BASE_DIR = Path(__file__).parent
 
 
 def client(db_username, db_pwd, db_host):
@@ -17,7 +23,7 @@ def format_query(query, id_sinalid):
 
 
 def rank_query(cursor, id_sinalid):
-    with open('busca_desaparecidos/queries/rank.sql') as fobj:
+    with open(os.path.join(BASE_DIR.child("queries"), "rank.sql")) as fobj:
         query = fobj.read()
 
     f_query = format_query(query, id_sinalid)
