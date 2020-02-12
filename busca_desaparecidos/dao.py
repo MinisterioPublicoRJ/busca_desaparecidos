@@ -53,4 +53,5 @@ def serialize(result_set, limit=None):
 
 def rank(cursor, id_sinalid, limit=100):
     result_set = rank_query(cursor, id_sinalid)
-    return serialize(result_set, limit)
+    return serialize(result_set, limit) if result_set\
+        else {'erro': 'ID Sinalid não encontrado'}

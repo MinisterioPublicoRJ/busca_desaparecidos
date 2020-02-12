@@ -110,3 +110,15 @@ class Dao(TestCase):
         _rank_query.assert_called_once_with(cursor, id_sinalid)
         _serialize.assert_called_once_with("result", 200)
         self.assertEqual(result, "ser result")
+
+    @mock.patch("busca_desaparecidos.dao.serialize")
+    @mock.patch("busca_desaparecidos.dao.rank_query", return_value=[])
+    def test_whole_workflow_empty_response(self, _rank_query, _serialize):
+        cursor = mock.MagicMock()
+        id_sinalid = "1234"
+
+        result = rank(cursor, id_sinalid, limit=200)
+
+        _rank_query.assert_called_once_with(cursor, id_sinalid)
+        _serialize.assert_not_called()
+        self.assertEqual(result, {'erro': 'ID Sinalid não encontrado'})
