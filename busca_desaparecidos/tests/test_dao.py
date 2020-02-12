@@ -6,6 +6,7 @@ from busca_desaparecidos.dao import (
     format_query,
     rank_query,
     serialize,
+    rank,
 )
 
 
@@ -86,3 +87,15 @@ class Dao(TestCase):
         ]
 
         self.assertEqual(json.loads(resp_json), expected)
+
+    @mock.patch("busca_desaparecidos.dao.serialize", return_value="ser result")
+    @mock.patch("busca_desaparecidos.dao.rank_query", return_value="result")
+    def test_whole_workflow(self, _rank_query, _serialize):
+        cursor = mock.MagicMock()
+        id_sinalid = "1234"
+
+        result = rank(cursor, id_sinalid)
+
+        _rank_query.assert_called_once_with(cursor, id_sinalid)
+        _serialize.assert_called_once_with("result")
+        self.assertEqual(result, "ser result")

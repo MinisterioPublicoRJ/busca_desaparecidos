@@ -41,3 +41,8 @@ def serialize(result_set):
     )
 
     return data_frame.to_json(orient="records")
+
+
+def rank(cursor, id_sinalid):
+    result_set = rank_query(cursor, id_sinalid)
+    return serialize(result_set)
