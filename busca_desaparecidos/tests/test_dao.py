@@ -1,8 +1,11 @@
+import json
+from datetime import datetime
 from unittest import TestCase, mock
 
 from busca_desaparecidos.dao import (
     format_query,
-    rank_query
+    rank_query,
+    serialize,
 )
 
 
@@ -36,3 +39,50 @@ class Dao(TestCase):
         cursor_mock.execute.assert_called_once_with("formatted query")
         cursor_mock.fetchall.assert_called_once_with()
         self.assertEqual(result, [(1, 2, 3), (4, 5, 6)])
+
+    def test_serialize_to_json(self):
+        oracle_resp = [
+            ('id 1',
+             'id 2',
+             datetime(1941, 4, 27, 0, 0),
+             0.01,
+             0,
+             0,
+             0,
+             0.01),
+            ('id 3',
+             'id 4',
+             datetime(1972, 4, 27, 0, 0),
+             0.01,
+             0,
+             0,
+             0,
+             0.01)
+        ]
+
+        resp_json = serialize(oracle_resp)
+        expected = [
+            {
+                "busca_id_sinalid": "id 1",
+                "candidato_id_sinalid": "id 2",
+                "data_nascimento": -905126400000,
+                "score_sexo": 0.01,
+                "score_data_fato": 0,
+                "score_idade": 0,
+                "score_distancia": 0,
+                "score_total": 0.01
+            },
+
+            {
+                "busca_id_sinalid": "id 3",
+                "candidato_id_sinalid": "id 4",
+                "data_nascimento": 73180800000,
+                "score_sexo": 0.01,
+                "score_data_fato": 0,
+                "score_idade": 0,
+                "score_distancia": 0,
+                "score_total": 0.01
+            }
+        ]
+
+        self.assertEqual(json.loads(resp_json), expected)

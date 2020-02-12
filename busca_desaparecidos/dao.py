@@ -1,4 +1,5 @@
 import cx_Oracle
+import pandas
 
 
 def client(db_username, db_pwd, db_host):
@@ -22,3 +23,21 @@ def rank_query(cursor, id_sinalid):
     f_query = format_query(query, id_sinalid)
     cursor.execute(f_query)
     return cursor.fetchall()
+
+
+def serialize(result_set):
+    data_frame = pandas.DataFrame(
+        result_set,
+        columns=[
+            "busca_id_sinalid",
+            "candidato_id_sinalid",
+            "data_nascimento",
+            "score_sexo",
+            "score_data_fato",
+            "score_idade",
+            "score_distancia",
+            "score_total",
+        ]
+    )
+
+    return data_frame.to_json(orient="records")
