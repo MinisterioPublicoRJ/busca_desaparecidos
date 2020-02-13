@@ -1,6 +1,6 @@
 # Busca Desaparecidos
 
-version 0.0.5dev0
+version 0.0.6dev0
 
 Python package for helping localizing missing persons
 
