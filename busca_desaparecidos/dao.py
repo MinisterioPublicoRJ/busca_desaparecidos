@@ -1,9 +1,10 @@
 import json
-import os
 
 import cx_Oracle
 import pandas
 from unipath import Path
+
+from busca_desaparecidos.queries.rank import query as q_rank
 
 
 BASE_DIR = Path(__file__).parent
@@ -24,10 +25,7 @@ def format_query(query, id_sinalid):
 
 
 def rank_query(cursor, id_sinalid):
-    with open(os.path.join(BASE_DIR.child("queries"), "rank.sql")) as fobj:
-        query = fobj.read()
-
-    f_query = format_query(query, id_sinalid)
+    f_query = format_query(q_rank, id_sinalid)
     cursor.execute(f_query)
     return cursor.fetchall()
 
