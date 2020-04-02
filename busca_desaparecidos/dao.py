@@ -1,7 +1,7 @@
+import datetime
 import json
 
 import cx_Oracle
-import pandas
 from unipath import Path
 
 from busca_desaparecidos.queries.rank import query as q_rank
@@ -31,22 +31,25 @@ def rank_query(cursor, id_sinalid):
 
 
 def serialize(result_set, limit=None):
-    data_frame = pandas.DataFrame(
-        result_set,
-        columns=[
-            "busca_id_sinalid",
-            "candidato_id_sinalid",
-            "data_nascimento",
-            "score_sexo",
-            "score_data_fato",
-            "score_idade",
-            "score_distancia",
-            "score_total",
-        ]
-    )
+    def default(o):
+        if isinstance(o, (datetime.date, datetime.datetime)):
+            return o.isoformat()
 
-    limit = limit if limit else data_frame.shape[0]
-    return json.loads(data_frame.loc[:limit].to_json(orient="records"))
+    columns = [
+        "busca_id_sinalid",
+        "candidato_id_sinalid",
+        "data_nascimento",
+        "score_sexo",
+        "score_data_fato",
+        "score_idade",
+        "score_distancia",
+        "score_total",
+    ]
+    limit = limit if limit else len(result_set)
+    return json.loads(json.dumps(
+        [dict(zip(columns, res)) for res in result_set[:limit]],
+        default=default,
+    ))
 
 
 def rank(cursor, id_sinalid, limit=100):

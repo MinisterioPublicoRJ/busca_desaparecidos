@@ -1,3 +1,1 @@
-cx-Oracle==7.1.0
-pandas==0.24.1
-Unipath==1.1
+cx-Oracle==7.3.0

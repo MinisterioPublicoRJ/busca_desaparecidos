@@ -63,7 +63,7 @@ class Dao(TestCase):
             {
                 "busca_id_sinalid": "id 1",
                 "candidato_id_sinalid": "id 2",
-                "data_nascimento": -905126400000,
+                "data_nascimento": "1941-04-27T00:00:00",
                 "score_sexo": 0.01,
                 "score_data_fato": 0,
                 "score_idade": 0,
@@ -74,7 +74,7 @@ class Dao(TestCase):
             {
                 "busca_id_sinalid": "id 3",
                 "candidato_id_sinalid": "id 4",
-                "data_nascimento": 73180800000,
+                "data_nascimento": "1972-04-27T00:00:00",
                 "score_sexo": 0.01,
                 "score_data_fato": 0,
                 "score_idade": 0,
