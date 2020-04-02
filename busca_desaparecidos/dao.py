@@ -2,12 +2,8 @@ import datetime
 import json
 
 import cx_Oracle
-from unipath import Path
 
 from busca_desaparecidos.queries.rank import query as q_rank
-
-
-BASE_DIR = Path(__file__).parent
 
 
 def client(db_username, db_pwd, db_host):
