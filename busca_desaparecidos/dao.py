@@ -17,7 +17,36 @@ def client(db_username, db_pwd, db_host):
 
 
 def format_query(query, id_sinalid):
-    return query.replace("{{ id_sinalid }}", id_sinalid)
+    #TODO: Adicionar teste para essa troca de filtros
+    keep_DS = """
+        SELECT
+            SNCA1.SNCA_DK
+        FROM
+            SILD_DESAPARECIMENTO SDES
+        INNER JOIN
+            SILD_SINDICANCIA SNCA1
+        ON (SNCA1.SNCA_DK = SDES.SDES_SNCA_DK AND
+            SNCA1.SNCA_SISI_DK IN (1,3))
+    """
+    remove_DS = """
+        SELECT
+            SNCA2.SNCA_DK
+        FROM
+                SILD_INDICA_DESAPARECIMENTO SIDS
+        INNER JOIN
+                SILD_SINDICANCIA SNCA2
+        ON (SNCA2.SNCA_DK = SIDS.SIDS_SNCA_DK AND
+            SNCA2.SNCA_SISI_DK IN (1,3,4))
+        INNER JOIN
+                SILD_VITIMA VTMA
+        ON (VTMA.VTMA_DK = SNCA2.SNCA_VTMA_DK AND
+                (VTMA.VTMA_CPF IS NULL AND
+                 VTMA.VTMA_NM_VITIMA IS NULL AND
+                 VTMA.VTMA_DT_NASCIMENTO IS NULL))
+    """
+    table_filter = remove_DS if 'DS' in id_sinalid else keep_DS
+    return query.replace("{{ id_sinalid }}", id_sinalid)\
+        .replace("{{ filter }}", table_filter)
 
 
 def rank_query(cursor, id_sinalid):
