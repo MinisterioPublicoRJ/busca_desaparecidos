@@ -59,8 +59,19 @@ def serialize(result_set, limit=None):
     def default(o):
         if isinstance(o, (datetime.date, datetime.datetime)):
             return o.isoformat()
+        elif isinstance(o, cx_Oracle.LOB):
+            return o.read()
 
     columns = [
+        "snca_dk_cand",
+	"data_fato_cand",
+	"foto_cand",
+	"idade_cand",
+        "cor_pele_cand",
+        "altura_cand",
+	"bairro_cand",
+	"cidade_cand",
+        "uf_cand",
         "busca_id_sinalid",
         "candidato_id_sinalid",
         "data_nascimento",
@@ -77,6 +88,7 @@ def serialize(result_set, limit=None):
     ))
 
 
+# TODO: PLACE limit in the query!
 def rank(cursor, id_sinalid, limit=100):
     result_set = rank_query(cursor, id_sinalid)
     return serialize(result_set, limit) if result_set\
