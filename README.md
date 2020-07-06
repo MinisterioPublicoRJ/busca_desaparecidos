@@ -1,3 +1,8 @@
+# Projeto Deprecado
+
+O código deste pacote foi incorporado pela nossa [API genérica](https://github.com/MinisterioPublicoRJ/apimpmapas)
+
+
 # Busca Desaparecidos
 
 version 0.0.6dev0
